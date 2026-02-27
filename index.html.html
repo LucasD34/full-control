@@ -307,6 +307,11 @@ input, select {
     <div id="estoqueTab" class="tab">
         <section>
            <h3>Gestão de Estoque</h3>
+            <div style="margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+            <span style="font-size: 18px;">🔍</span>
+            <input type="text" id="inputBusca" onkeyup="filtrarEstoque()" placeholder="Digite a REF ou nome da peça..." 
+                style="width: 100%; padding: 10px; border: 2px solid #2c3e50; border-radius: 6px; font-size: 16px;">
+        </div>
            <div id="listaRefs"></div> </section>
     </div>
 
@@ -732,7 +737,25 @@ function exportarRefEspecifica(codigoRef, nomeRef) {
     link.download = `Inventario_${codigoRef}.xls`;
     link.click();
 }
+    function filtrarEstoque() {
+    const input = document.getElementById("inputBusca");
+    const filter = input.value.toUpperCase();
+    const lista = document.getElementById("listaRefs");
+    
+    // Pega cada bloco (div) de Referência
+    const blocos = lista.children; 
 
+    for (let i = 0; i < blocos.length; i++) {
+        const bloco = blocos[i];
+        const texto = bloco.textContent || bloco.innerText;
+        
+        if (texto.toUpperCase().indexOf(filter) > -1) {
+            bloco.style.display = ""; // Mostra o bloco se encontrar o texto
+        } else {
+            bloco.style.display = "none"; // Esconde o bloco todo
+        }
+    }
+}
 function renderSistema(){ renderDashboard(); renderSelects(); renderEstoque(); renderBOM(); renderHistorico(); }
 
 /* INICIALIZAÇÃO */
@@ -772,3 +795,4 @@ window.addEventListener('keydown', function(event) {
 </body>
 
 </html>
+
