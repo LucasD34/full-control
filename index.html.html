@@ -1,0 +1,773 @@
+﻿<!<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Produção Industrial V13 - Dashboard Fix</title>
+<style>
+
+
+/* Cores de destaque para o Histórico */
+.linha-entrada { background-color: #d4f7d4 !important; } /* Verde claro */
+.linha-producao { background-color: #f7d4d4 !important; } /* Vermelho/Rosa claro */
+
+/* Para manter o efeito de "zebra" ou garantir que a cor apareça bem */
+#historico tr.linha-entrada:hover { background-color: #c2eec2 !important; }
+#historico tr.linha-producao:hover { background-color: #efbcbc !important; }
+
+
+/* =========================
+    BASE E ESTILOS GERAIS
+========================= */
+body { 
+    font-family: Arial, sans-serif; 
+    background: #f2f2f2; 
+    padding: 20px; 
+    color: #333; 
+}
+
+.container { 
+    max-width: 1400px; 
+    margin: auto; 
+    background: #fff; 
+    padding: 20px; 
+    border-radius: 8px; 
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
+}
+
+/* NAVEGAÇÃO (TABS) */
+.tabs { 
+    display: flex; 
+    gap: 10px; 
+    margin-bottom: 20px; 
+    overflow-x: auto; 
+    padding-bottom: 5px;
+}
+
+.tab-btn { 
+    padding: 10px 15px; 
+    border: none; 
+    border-radius: 5px; 
+    background: #ddd; 
+    cursor: pointer; 
+    font-weight: bold; 
+    white-space: nowrap;
+}
+
+.tab-btn.active { 
+    background: #2f6fed; 
+    color: #fff; 
+}
+
+.tab { display: none; }
+.tab.active { display: block; }
+
+/* TABELAS */
+table { 
+    width: 100%; 
+    border-collapse: collapse; 
+    margin-top: 10px; 
+    table-layout: auto; /* Deixa automático, exceto onde travaremos no histórico */
+}
+
+th, td { 
+    border: 1px solid #ccc; 
+    padding: 8px; 
+    text-align: center; 
+    vertical-align: middle;
+}
+
+.compact th, .compact td { 
+    padding: 4px 6px; 
+    font-size: 13px; 
+}
+
+/* 🎯 CORREÇÃO DA COLUNA DO HISTÓRICO 🎯 */
+#historicoTab table {
+    table-layout: fixed; /* Força o navegador a respeitar os tamanhos das colunas */
+}
+
+#historicoTab th:first-child, 
+#historicoTab td:first-child {
+    width: 32px !important;    /* Largura cravada */
+    padding: 0 !important;     /* Remove espaços que desalinhavam o checkbox */
+    text-align: center !important;
+    line-height: 0;            /* Remove altura extra de texto */
+}
+
+#historicoTab td {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis; /* Adiciona "..." se o nome for muito longo */
+}
+
+.hist-check {
+    margin: 0 !important;
+    padding: 0;
+    cursor: pointer;
+    width: 16px;
+    height: 16px;
+    vertical-align: middle;
+}
+
+/* DASHBOARD DESIGN */
+.dashboard-box { 
+    display: grid; 
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+    gap: 15px; 
+    margin-bottom: 20px; 
+}
+
+.dash-card { 
+    background: #f8f9fa; 
+    padding: 15px; 
+    border-radius: 8px; 
+    border: 1px solid #dee2e6; 
+}
+
+.dash-card h4 { 
+    margin: 0 0 10px 0; 
+    color: #495057; 
+    border-bottom: 1px solid #eee; 
+    padding-bottom: 5px; 
+}
+
+.dash-number { 
+    font-size: 24px; 
+    font-weight: bold; 
+    color: #2f6fed; 
+}
+
+.dash-item { 
+    font-size: 12px; 
+    padding: 5px 0; 
+    border-bottom: 1px dashed #ddd; 
+    color: #555; 
+}
+
+.dash-item:last-child { border: none; }
+
+/* ESTOQUE VISUAL (BARRAS) */
+.progress-container { 
+    width: 100%; 
+    background: #eee; 
+    height: 8px; 
+    border-radius: 4px; 
+    overflow: hidden; 
+    margin-top: 5px; 
+}
+
+.progress-bar { 
+    height: 100%; 
+    transition: width 0.3s; 
+}
+
+/* STATUS CORES */
+.critico { background: #ffe5e5; }
+.baixo   { background: #fff9e6; }
+.ok      { background: #f0fff0; }
+
+/* FORMULÁRIOS E BOTÕES */
+button { 
+    padding: 8px 15px; 
+    border: none; 
+    border-radius: 4px; 
+    background: #2f6fed; 
+    color: #fff; 
+    font-weight: bold; 
+    cursor: pointer; 
+    transition: opacity 0.2s;
+}
+
+button:hover { opacity: 0.8; }
+
+input, select { 
+    padding: 8px; 
+    margin: 5px 0; 
+    width: 100%; 
+    max-width: 250px; 
+    border: 1px solid #ccc; 
+    border-radius: 4px; 
+    box-sizing: border-box; 
+}
+
+#toast {
+    visibility: hidden;
+    min-width: 250px;
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    border-radius: 5px;
+    padding: 16px;
+    position: fixed;
+    z-index: 1000;
+    left: 50%;
+    bottom: 30px;
+    transform: translateX(-50%);
+}
+
+#toast.show {
+    visibility: visible;
+    animation: fadein 0.5s, fadeout 0.5s 2.5s;
+}
+
+@keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
+@keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
+
+
+</style>
+</head>
+<body>
+
+<div style="text-align: center; margin-bottom: 30px; border-bottom: 3px solid #f1c40f; padding-bottom: 15px;">
+    <h1 style="margin: 0; font-size: 38px; letter-spacing: 4px; font-family: 'Arial Black', sans-serif; color: #2c3e50;">
+        FULL <span style="color: #f1c40f; text-shadow: 1px 1px 2px #000;">CONTROL</span> S.A.
+    </h1>
+    <div style="margin-top: 5px; font-weight: bold; color: #7f8c8d; letter-spacing: 2px;">
+        ⚙️ GESTÃO DE SEMI ACABADOS | ELKA PLÁSTICOS
+    </div>
+</div>
+    <div class="tabs">
+        <button class="tab-btn active" onclick="openTab('dashboard',this)">Dashboard</button>
+        <button class="tab-btn" onclick="openTab('cadastro',this)">Cadastro</button>
+        <button class="tab-btn" onclick="openTab('bom',this)">BOM</button>
+        <button class="tab-btn" onclick="openTab('entrada',this)">Entrada</button>
+        <button class="tab-btn" onclick="openTab('producao',this)">Produção</button>
+        <button class="tab-btn" onclick="openTab('estoqueTab',this)">Estoque</button>
+        <button class="tab-btn" onclick="openTab('historicoTab',this)">Histórico</button>
+    </div>
+
+    <div id="dashboard" class="tab active">
+        <div class="dashboard-box" id="dashCards"></div>
+        <div class="dashboard-box">
+            <div class="dash-card">
+                <h4>⚠️ Estoque Crítico (< 100)</h4>
+                <div id="dashCritico"></div>
+            </div>
+            <div class="dash-card">
+                <h4>🏭 Produção Hoje</h4>
+                <div id="dashProducao"></div>
+            </div>
+            <div class="dash-card">
+                <h4>🕒 Últimas Atividades</h4>
+                <div id="dashAtividade"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="cadastro" class="tab">
+        <section>
+            <h3>Registrar Referência/Produto</h3>
+            <input id="refCod" placeholder="Ex: 1010">
+            <input id="refNome" placeholder="Ex: Cadeira Pro">
+            <button onclick="addRef()">Cadastrar</button>
+        </section>
+        <section>
+            <h3>Registrar Peça</h3>
+            <select id="pecaRef"></select>
+            <input id="pCod" placeholder="Ex: P01">
+            <input id="pNome" placeholder="Ex: Parafuso 5mm">
+            <input id="pQtd" type="number" placeholder="Estoque Inicial">
+            <button onclick="addPeca()">Cadastrar Peça</button>
+        </section>
+    </div>
+
+    <div id="bom" class="tab">
+        <section>
+            <h3>Estrutura (BOM)</h3>
+            <select id="bomRef"></select>
+            <select id="bomPeca"></select>
+            <input id="bomQtd" type="number" step="0.01" placeholder="Qtd p/ unidade">
+            <button onclick="addBOM()">Adicionar à BOM</button>
+            <table class="compact">
+                <thead><tr><th>Ref</th><th>Cód Peça</th><th>Nome</th><th>Qtd</th><th>Ações</th></tr></thead>
+                <tbody id="bomLista"></tbody>
+            </table>
+        </section>
+    </div>
+
+    <div id="entrada" class="tab">
+        <section>
+            <h3>Entrada de Material</h3>
+            <select id="entRef"></select>
+            <select id="entPeca"></select>
+            <input id="entQtd" type="number" placeholder="Quantidade">
+            <button onclick="entradaMaterial()">Registrar</button>
+        </section>
+    </div>
+
+    <div id="producao" class="tab">
+        <section>
+            <h3>Ordem de Produção</h3>
+            <select id="prodRef"></select>
+            <input id="prodQtd" type="number" step="0.01" placeholder="Quantidade">
+            <button onclick="produzir()">Produzir</button>
+        </section>
+    </div>
+
+    <div id="estoqueTab" class="tab">
+        <section>
+           <h3>Gestão de Estoque</h3>
+           <div id="listaRefs"></div> </section>
+    </div>
+
+    <div id="historicoTab" class="tab">
+        <button onclick="apagarHistoricoSelecionado()">🗑️ Apagar Selecionados</button>
+        <table style="table-layout: fixed; width: 100%;">
+  <colgroup>
+    <col style="width: 25px;"> <col style="width: 100px;"> <col style="width: 80px;">  <col>                       <col style="width: 80px;">  <col style="width: 130px;"> </colgroup>
+  <thead>
+    <tr>
+      <th>✔</th>
+      <th>Tipo</th>
+      <th>Ref</th>
+      <th>Item</th>
+      <th>Qtd</th>
+      <th>Data</th>
+    </tr>
+  </thead>
+  <tbody id="historico"></tbody>
+</table>
+    </div>
+</div>
+
+<div id="toast">Mensagem aqui</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+/* CONEXÃO SUPABASE */
+const SUPABASE_URL = 'https://dyrsiriwnjnsoboaxbna.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_lxQaI_VE2V_EWBstaEc5Pw_O8SabJge';
+const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const CRITICO_PADRAO = 100; 
+const MINIMO_PADRAO = 500;
+
+/* DADOS DO SISTEMA */
+let refs = JSON.parse(localStorage.getItem('refsV12')) || [];
+let pecas = JSON.parse(localStorage.getItem('pecasV12')) || [];
+let bom = JSON.parse(localStorage.getItem('bomV12')) || [];
+let hist = JSON.parse(localStorage.getItem('histV12')) || [];
+
+function mostrarAviso(msg) {
+    const toast = document.getElementById("toast");
+    toast.innerText = msg;
+    toast.className = "show";
+    setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
+}
+
+function fNum(n) { 
+    return Number(n).toLocaleString('pt-BR', { 
+        minimumFractionDigits: 0, 
+        maximumFractionDigits: 3 
+    }); 
+}
+
+function formatarData(iso){
+    let d = new Date(iso);
+    return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+}
+
+/* DASHBOARD */
+function renderDashboard(){
+    let totalRefs = refs.length;
+    let estoqueTotal = pecas.reduce((s,p)=> s + p.qtd, 0);
+    let hoje = new Date().toISOString().split('T')[0];
+    let eHoje = hist.filter(h => h.tipo === 'Entrada' && h.dataISO === hoje).reduce((s,h)=> s + h.qtd, 0);
+    let pHoje = hist.filter(h => h.tipo === 'Producao' && h.dataISO === hoje).reduce((s,h)=> s + h.qtd, 0);
+
+    document.getElementById('dashCards').innerHTML = `
+        <div class="dash-card"><h4>Referências</h4><div class="dash-number">${totalRefs}</div></div>
+        <div class="dash-card"><h4>Itens em Estoque</h4><div class="dash-number">${fNum(Math.floor(estoqueTotal))}</div></div>
+        <div class="dash-card"><h4>Entradas (Hoje)</h4><div class="dash-number">${fNum(Math.floor(eHoje))}</div></div>
+        <div class="dash-card"><h4>Produção (Hoje)</h4><div class="dash-number">${fNum(Math.floor(pHoje))}</div></div>
+    `;
+
+    let critList = pecas.filter(p => p.qtd <= CRITICO_PADRAO);
+    let critDiv = document.getElementById('dashCritico');
+    critDiv.innerHTML = critList.length === 0 ? '<div class="dash-item">✅ Tudo OK</div>' : '';
+    critList.forEach(p => {
+        critDiv.innerHTML += `<div class="dash-item">🔴 ${p.nome} (${p.ref}): <b>${fNum(p.qtd)}</b></div>`;
+    });
+
+    let prodDiv = document.getElementById('dashProducao');
+    let prodHoje = hist.filter(h => h.tipo === 'Producao' && h.dataISO === hoje);
+    prodDiv.innerHTML = prodHoje.length === 0 ? '<div class="dash-item">Nenhuma OP hoje</div>' : '';
+    prodHoje.forEach(h => {
+        prodDiv.innerHTML += `<div class="dash-item">🏭 Ref ${h.ref}: ${fNum(h.qtd)} un.</div>`;
+    });
+
+    let atvDiv = document.getElementById('dashAtividade');
+    atvDiv.innerHTML = '';
+    hist.slice(0, 8).forEach(h => {
+        atvDiv.innerHTML += `<div class="dash-item"><b>${h.tipo}</b>: ${h.ref} (${fNum(h.qtd)}) <br> <small>${formatarData(h.data)}</small></div>`;
+    });
+}
+
+function calcularProducaoMaxima(pecaCod, pecaRef, qtdAtual) {
+    let itemBOM = bom.find(b => b.peca === pecaCod && b.ref === pecaRef);
+    if (!itemBOM || itemBOM.qtd <= 0) return "-";
+    let maximo = Math.floor(qtdAtual / itemBOM.qtd);
+    return fNum(maximo);
+}
+
+/* ESTOQUE */
+
+function renderEstoque(){
+    let div = document.getElementById('listaRefs');
+    if(!div) return;
+    div.innerHTML = '';
+    refs.sort((a, b) => Number(a.cod) - Number(b.cod));
+
+    refs.forEach(r => {
+        let block = document.createElement('div');
+        block.style.cssText = "border:1px solid #ccc; margin-bottom:10px; border-radius:5px; overflow:hidden;";
+        block.innerHTML = `
+            <div style="background:#eee; padding:10px; display:flex; justify-content:space-between; align-items:center;">
+                <span style="cursor:pointer; font-weight:bold" onclick="this.parentElement.nextSibling.style.display=this.parentElement.nextSibling.style.display==='none'?'table':'none'">
+                    📁 ${r.nome} (${r.cod})
+                </span>
+                <div style="display:flex; gap:5px;">
+                    <button onclick="exportarRefEspecifica('${r.cod}', '${r.nome}')" style="background:#28a745; padding:4px 8px; font-size:12px;">📥 CSV</button>
+                    <button onclick="excluirReferenciaCompleta('${r.cod}')" style="background:#dc3545; padding:4px 8px; font-size:12px;">🗑️ Excluir Ref</button>
+                </div>
+            </div>`;
+        
+        let tbl = document.createElement('table');
+        tbl.style.display = 'none';
+        tbl.innerHTML = `<thead><tr><th>Cód</th><th>Peça</th><th>Estoque</th><th style="color:#2f6fed">Máx.</th><th>Status</th><th>Ações</th></tr></thead>`;
+        let tbody = document.createElement('tbody');
+        
+        pecas.filter(p => p.ref === r.cod).forEach(p => {
+            let pct = Math.min((p.qtd / MINIMO_PADRAO) * 100, 100);
+            let cor = p.qtd <= CRITICO_PADRAO ? '#ff4d4d' : (p.qtd <= MINIMO_PADRAO ? '#ffcc00' : '#2ecc71');
+            let prodMax = calcularProducaoMaxima(p.cod, p.ref, p.qtd);
+            let tr = document.createElement('tr');
+            tr.className = p.qtd <= CRITICO_PADRAO ? 'critico' : (p.qtd <= MINIMO_PADRAO ? 'baixo' : 'ok');
+            tr.innerHTML = `
+                <td>${p.cod}</td><td>${p.nome}</td><td>${fNum(p.qtd)}</td>
+                <td style="font-weight:bold; color:#2f6fed">${prodMax}</td>
+                <td style="width:120px"><div class="progress-container"><div class="progress-bar" style="width:${pct}%; background:${cor}"></div></div></td>
+                <td><button onclick="excluirPeca('${p.ref}','${p.cod}')" style="background:red; padding:2px 5px">X</button></td>`;
+            tbody.appendChild(tr);
+        });
+        tbl.appendChild(tbody);
+        block.appendChild(tbl);
+        div.appendChild(block);
+    });
+}
+
+/* SALVAMENTO */
+function salvarSistema(){
+    localStorage.setItem('refsV12', JSON.stringify(refs));
+    localStorage.setItem('pecasV12', JSON.stringify(pecas));
+    localStorage.setItem('bomV12', JSON.stringify(bom));
+    localStorage.setItem('histV12', JSON.stringify(hist));
+    renderSistema();
+}
+
+function openTab(id, btn){
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    btn.classList.add('active');
+}
+
+/* FUNÇÕES DE CADASTRO E MOVIMENTAÇÃO */
+
+/* COLOQUE ESTA FUNÇÃO FORA DE OUTRAS FUNÇÕES */
+async function apagarHistoricoSelecionado() {
+    const selecionados = document.querySelectorAll('.hist-check:checked');
+    
+    if (selecionados.length === 0) {
+        return alert("Selecione ao menos um item para apagar!");
+    }
+
+    if (confirm(`Deseja apagar ${selecionados.length} registros?`)) {
+        // Criamos uma lista dos índices marcados
+        const indices = Array.from(selecionados).map(cb => parseInt(cb.getAttribute('data-index')));
+        
+        // Ordenamos do maior para o menor para não bagunçar a ordem ao remover
+        indices.sort((a, b) => b - a);
+
+        for (let i of indices) {
+            const h = hist[i];
+            // Apaga no Supabase
+            await _supabase.from('hist').delete().match({ 
+                data: h.data, 
+                ref: h.ref, 
+                tipo: h.tipo 
+            });
+            // Remove localmente
+            hist.splice(i, 1);
+        }
+
+        salvarSistema(); // Esta função já chama o renderHistorico()
+        mostrarAviso("🗑️ Histórico atualizado!");
+    }
+}
+
+
+async function editarQtdBOM(ref, codPeca, qtdAtual) {
+    let novaQtd = prompt(`Nova quantidade para a peça ${codPeca}:`, qtdAtual);
+    
+    if (novaQtd !== null && novaQtd !== "" && !isNaN(novaQtd) && novaQtd > 0) {
+        let item = bom.find(i => i.ref === ref && i.peca === codPeca);
+        if (item) {
+            item.qtd = Number(novaQtd);
+            salvarSistema(); // Salva local e renderiza
+            
+            // Atualiza no Supabase
+            await _supabase.from('bom')
+                .update({ qtd: item.qtd })
+                .match({ ref: ref, peca: codPeca });
+
+            mostrarAviso("📝 Quantidade atualizada na Nuvem!");
+        }
+    }
+}
+
+async function addRef(){
+    let c = document.getElementById('refCod').value, n = document.getElementById('refNome').value;
+    if(c && n) { 
+        const novaRef = {cod:c, nome:n};
+        refs.push(novaRef); salvarSistema(); 
+        await _supabase.from('refs').insert([novaRef]); 
+        mostrarAviso(`✅ Ref ${c} cadastrada!`);
+        document.getElementById('refCod').value = ''; document.getElementById('refNome').value = '';
+    }
+}
+
+async function addPeca(){
+    let r = document.getElementById('pecaRef').value, c = document.getElementById('pCod').value, n = document.getElementById('pNome').value, q = Number(document.getElementById('pQtd').value);
+    if(r && c && n) { 
+        const novaPeca = {ref:r, cod:c, nome:n, qtd:q};
+        pecas.push(novaPeca); salvarSistema(); 
+        await _supabase.from('pecas').insert([novaPeca]); 
+        mostrarAviso(`✅ Peça ${n} salva!`);
+        document.getElementById('pCod').value = ''; document.getElementById('pNome').value = ''; document.getElementById('pQtd').value = '';
+    }
+}
+
+async function addBOM(){
+    const resRef = document.getElementById('bomRef'), resPeca = document.getElementById('bomPeca'), resQtd = document.getElementById('bomQtd');
+    if(resRef && resPeca && resQtd.value > 0) { 
+        const novoItemBOM = {ref: resRef.value, peca: resPeca.value, qtd: Number(resQtd.value)};
+        bom.push(novoItemBOM); salvarSistema(); 
+        await _supabase.from('bom').insert([novoItemBOM]);
+        mostrarAviso("✅ Estrutura sincronizada!");
+        resQtd.value = ''; renderSistema();
+    }
+}
+
+async function entradaMaterial(){
+    let r = document.getElementById('entRef').value, pc = document.getElementById('entPeca').value, q = Number(document.getElementById('entQtd').value);
+    let p = pecas.find(x => x.ref === r && x.cod === pc);
+    if(p && q > 0) {
+        const agora = new Date();
+        const novoHist = { tipo: 'Entrada', ref: r, peca: p.nome, qtd: q, data: agora.toISOString(), dataISO: agora.toLocaleDateString('en-CA') };
+        p.qtd += q; hist.unshift(novoHist); salvarSistema();
+        await _supabase.from('pecas').update({ qtd: p.qtd }).match({ ref: r, cod: pc });
+        await _supabase.from('hist').insert([novoHist]);
+        mostrarAviso(`📥 Entrada de ${q} un. salva!`);
+        document.getElementById('entQtd').value = '';
+    }
+}
+
+async function produzir(){
+    let r = document.getElementById('prodRef').value;
+    let q = Number(document.getElementById('prodQtd').value);
+    
+    if(q <= 0 || isNaN(q)) return alert("Informe uma quantidade válida.");
+    
+    // 1. Pega a estrutura exata dessa referência
+    let est = bom.filter(b => b.ref === r);
+    if(est.length === 0) return alert("Referência sem estrutura (BOM)!");
+
+    // 2. Validação de Estoque (Verifica antes de descontar qualquer coisa)
+    for(let e of est){
+        let p = pecas.find(x => x.ref === r && x.cod === e.peca);
+        let gastoNecessario = Number(e.qtd) * q; 
+        
+        if(!p || p.qtd < (gastoNecessario - 0.0001)) {
+            return alert(`Estoque insuficiente! Peça: ${p ? p.nome : e.peca}. Necessário: ${gastoNecessario}, Disponível: ${p ? p.qtd : 0}`);
+        }
+    }
+
+    // 3. Processamento (Só chega aqui se houver estoque para TUDO)
+    for(let e of est){
+        let p = pecas.find(x => x.ref === r && x.cod === e.peca);
+        let totalADescontar = Number(e.qtd) * q;
+        
+        // Atualiza localmente
+        p.qtd -= totalADescontar;
+        
+        // Atualiza no Supabase (apenas uma vez por peça)
+        await _supabase.from('pecas')
+            .update({ qtd: p.qtd })
+            .match({ ref: r, cod: e.peca });
+    }
+
+    // 4. Registro de Histórico
+    const agora = new Date();
+    const regProd = {
+        tipo: 'Producao', 
+        ref: r, 
+        peca: 'PRODUÇÃO', 
+        qtd: q, 
+        data: agora.toISOString(),
+        dataISO: agora.toLocaleDateString('en-CA')
+    };
+    
+    hist.unshift(regProd);
+    salvarSistema(); // Isso vai renderizar a tela com os novos valores
+    
+    await _supabase.from('hist').insert([regProd]);
+
+    mostrarAviso(`🏭 Produção de ${fNum(q)} concluída! Estoque atualizado.`);
+    document.getElementById('prodQtd').value = '';
+}
+
+/* EXCLUSÕES */
+async function excluirReferenciaCompleta(codigoRef) {
+    if(confirm(`⚠️ Excluir Ref ${codigoRef} e tudo nela?`)) {
+        refs = refs.filter(r => r.cod !== codigoRef);
+        pecas = pecas.filter(p => p.ref !== codigoRef);
+        bom = bom.filter(b => b.ref !== codigoRef);
+        salvarSistema();
+        await _supabase.from('refs').delete().match({ cod: codigoRef });
+        await _supabase.from('pecas').delete().match({ ref: codigoRef });
+        await _supabase.from('bom').delete().match({ ref: codigoRef });
+        mostrarAviso("🗑️ Excluído!");
+    }
+}
+
+async function excluirPeca(ref, cod){ 
+    if(confirm('Excluir peça?')){ 
+        pecas = pecas.filter(p => !(p.ref === ref && p.cod === cod)); salvarSistema(); 
+        await _supabase.from('pecas').delete().match({ ref: ref, cod: cod }); 
+    } 
+}
+
+/* RENDERS ADICIONAIS */
+function renderSelects(){
+    let sels = [document.getElementById('pecaRef'), document.getElementById('bomRef'), document.getElementById('prodRef'), document.getElementById('entRef')];
+    refs.sort((a, b) => Number(a.cod) - Number(b.cod));
+    sels.forEach(s => {
+        if(!s) return;
+        let v = s.value; s.innerHTML = '';
+        refs.forEach(r => s.innerHTML += `<option value="${r.cod}">${r.cod} - ${r.nome}</option>`);
+        s.value = v;
+    });
+    atualizarSelects();
+}
+
+function atualizarSelects(){
+    const selBomPeca = document.getElementById('bomPeca'), selEntPeca = document.getElementById('entPeca');
+    const bRef = document.getElementById('bomRef'), eRef = document.getElementById('entRef');
+    if(selBomPeca && bRef) {
+        selBomPeca.innerHTML = '';
+        pecas.filter(p => p.ref === bRef.value).forEach(p => selBomPeca.innerHTML += `<option value="${p.cod}">${p.nome}</option>`);
+    }
+    if(selEntPeca && eRef) {
+        selEntPeca.innerHTML = '';
+        pecas.filter(p => p.ref === eRef.value).forEach(p => selEntPeca.innerHTML += `<option value="${p.cod}">${p.nome}</option>`);
+    }
+}
+
+function renderBOM(){
+    const lista = document.getElementById('bomLista');
+    const refS = document.getElementById('bomRef');
+    if(!lista || !refS) return;
+    lista.innerHTML = '';
+    
+    bom.filter(b => b.ref === refS.value).forEach(b => {
+        let p = pecas.find(x => x.cod === b.peca && x.ref === b.ref);
+        let tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${b.ref}</td>
+            <td>${b.peca}</td>
+            <td>${p ? p.nome : '?'}</td>
+            <td>${b.qtd}</td>
+            <td style="display: flex; gap: 5px; justify-content: center;">
+                <button onclick="editarQtdBOM('${b.ref}', '${b.peca}', ${b.qtd})" 
+                        style="background:#ffc107; color:#000; padding:2px 8px;" title="Editar">
+                    ✏️
+                </button>
+                <button onclick="excluirItemBOM('${b.ref}', '${b.peca}')" 
+                        style="background:#dc3545; padding:2px 8px;" title="Excluir">
+                    X
+                </button>
+            </td>`;
+        lista.appendChild(tr);
+    });
+}
+
+function renderHistorico(){
+    const corpo = document.getElementById('historico');
+    if(!corpo) return;
+    corpo.innerHTML = '';
+    hist.forEach((h, i) => {
+        let tr = document.createElement('tr');
+        tr.className = h.tipo === 'Entrada' ? 'linha-entrada' : 'linha-producao';
+        tr.innerHTML = `
+            <td><input type="checkbox" class="hist-check" data-index="${i}"></td>
+            <td><strong>${h.tipo}</strong></td>
+            <td>${h.ref}</td>
+            <td>${h.peca}</td>
+            <td>${fNum(h.qtd)}</td>
+            <td>${formatarData(h.data)}</td>
+        `;
+        corpo.appendChild(tr);
+    });
+}
+
+function exportarRefEspecifica(codigoRef, nomeRef) {
+    const lista = pecas.filter(p => p.ref === codigoRef);
+    let html = `<table border="1"><tr><th colspan="4">CONTAGEM - ${codigoRef}</th></tr>`;
+    lista.forEach(p => html += `<tr><td>${p.cod}</td><td>${p.nome}</td><td>${Math.floor(p.qtd)}</td><td></td></tr>`);
+    const blob = new Blob(['\ufeff' + html + '</table>'], { type: 'application/vnd.ms-excel' });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `Inventario_${codigoRef}.xls`;
+    link.click();
+}
+
+function renderSistema(){ renderDashboard(); renderSelects(); renderEstoque(); renderBOM(); renderHistorico(); }
+
+/* INICIALIZAÇÃO */
+window.onload = async () => {
+    const { data: p } = await _supabase.from('pecas').select('*');
+    const { data: r } = await _supabase.from('refs').select('*');
+    const { data: b } = await _supabase.from('bom').select('*');
+    const { data: h } = await _supabase.from('hist').select('*').order('data', { ascending: false }).limit(100);
+
+    if (p) pecas = p; if (r) refs = r; if (b) bom = b; if (h) hist = h;
+    
+    renderSistema();
+
+    document.getElementById('bomRef').addEventListener('change', () => { atualizarSelects(); renderBOM(); });
+    document.getElementById('entRef').addEventListener('change', atualizarSelects);
+};
+
+/* ATALHOS */
+window.addEventListener('keydown', function(event) {
+    if (event.altKey) {
+        const tabs = document.querySelectorAll('.tab-btn');
+        if (event.key === '1') tabs[0].click();
+        if (event.key === '2') tabs[1].click();
+        if (event.key === '3') tabs[2].click();
+        if (event.key === '4') tabs[3].click();
+    }
+    if (event.key === 'Enter') {
+        const f = document.activeElement;
+        if (f.id === 'refCod' || f.id === 'refNome') addRef();
+        else if (f.id === 'pCod' || f.id === 'pNome' || f.id === 'pQtd') addPeca();
+        else if (f.id === 'bomQtd') addBOM();
+        else if (f.id === 'entQtd') entradaMaterial();
+        else if (f.id === 'prodQtd') produzir();
+    }
+});
+</script>
+</body>
+</html>
