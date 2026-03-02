@@ -647,6 +647,15 @@ async function excluirReferenciaCompleta(codigoRef) {
     }
 }
 
+async function excluirItemBOM(ref, peca) {
+    if(confirm('Remover esta peça da estrutura (BOM)?')) {
+        bom = bom.filter(b => !(b.ref === ref && b.peca === peca));
+        salvarSistema();
+        await _supabase.from('bom').delete().match({ ref: ref, peca: peca });
+        mostrarAviso("Item removido da estrutura!");
+    }
+}    
+
 async function excluirPeca(ref, cod){ 
     if(confirm('Excluir peça?')){ 
         pecas = pecas.filter(p => !(p.ref === ref && p.cod === cod)); salvarSistema(); 
@@ -795,4 +804,5 @@ window.addEventListener('keydown', function(event) {
 </body>
 
 </html>
+
 
