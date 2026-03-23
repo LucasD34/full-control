@@ -1,44 +1,50 @@
-﻿<!<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Produção Industrial V13 - Dashboard Fix</title>
+<title> Full Control 3.0 </title>
 <style>
 
+/* Cores para diferenciar no histórico */
+.hist-entrada { 
+    background-color: #d4f7d4 !important; /* Verde claro */
+    border-left: 5px solid #28a745 !important;
+    padding: 8px;
+    margin-bottom: 5px;
+    border-radius: 4px;
+}
+
+.hist-producao { 
+    background-color: #f7d4d4 !important; /* Rosa/Vermelho claro */
+    border-left: 5px solid #e91e63 !important;
+    padding: 8px;
+    margin-bottom: 5px;
+    border-radius: 4px;
+}
+
+.hist-ajuste {
+    background-color: #fff3cd !important; /* Amarelo claro */
+    border-left: 5px solid #ffc107 !important;
+    padding: 8px;
+    margin-bottom: 5px;
+    border-radius: 4px;
+}
 
 /* Cores de destaque para o Histórico */
-.linha-entrada { background-color: #d4f7d4 !important; } /* Verde claro */
-.linha-producao { background-color: #f7d4d4 !important; } /* Vermelho/Rosa claro */
+.linha-entrada { background-color: #d4f7d4 !important; }
+.linha-producao { background-color: #f7d4d4 !important; }
+.linha-ajuste { background-color: #fff3cd !important; }
 
-/* Para manter o efeito de "zebra" ou garantir que a cor apareça bem */
-#historico tr.linha-entrada:hover { background-color: #c2eec2 !important; }
-#historico tr.linha-producao:hover { background-color: #efbcbc !important; }
+body { font-family: Arial, sans-serif; background: #f2f2f2; padding: 20px; color: #333; }
+.container { max-width: 1400px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
 
-
-/* =========================
-    BASE E ESTILOS GERAIS
-========================= */
-body { 
-    font-family: Arial, sans-serif; 
-    background: #f2f2f2; 
-    padding: 20px; 
-    color: #333; 
-}
-
-.container { 
-    max-width: 1400px; 
-    margin: auto; 
-    background: #fff; 
-    padding: 20px; 
-    border-radius: 8px; 
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
-}
-
-/* NAVEGAÇÃO (TABS) */
-.tabs { 
-    display: flex; 
-    gap: 10px; 
-    margin-bottom: 20px; 
+/* NAVEGAÇÃO (ABAS E BOTÕES SUPERIORES) */
+.tabs {
+    display: flex;
+    align-items: center; /* Alinha o botão de simulação com as abas */
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: nowrap; 
     overflow-x: auto; 
     padding-bottom: 5px;
 }
@@ -50,226 +56,158 @@ body {
     background: #ddd; 
     cursor: pointer; 
     font-weight: bold; 
-    white-space: nowrap;
+    white-space: nowrap; 
 }
 
-.tab-btn.active { 
-    background: #2f6fed; 
-    color: #fff; 
-}
+.tab-btn.active { background: #2f6fed; color: #fff; }
 
+/* Controle de exibição das abas */
 .tab { display: none; }
 .tab.active { display: block; }
 
+
 /* TABELAS */
-table { 
-    width: 100%; 
-    border-collapse: collapse; 
-    margin-top: 10px; 
-    table-layout: auto; /* Deixa automático, exceto onde travaremos no histórico */
-}
+table { width: 100%; border-collapse: collapse; margin-top: 10px; table-layout: auto; }
+th, td { border: 1px solid #ccc; padding: 8px; text-align: center; vertical-align: middle; }
+.compact th, .compact td { padding: 4px 6px; font-size: 13px; }
 
-th, td { 
-    border: 1px solid #ccc; 
-    padding: 8px; 
-    text-align: center; 
-    vertical-align: middle;
-}
+/* DASHBOARD */
+.dashboard-box { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
+.dash-card { background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #dee2e6; }
+.dash-card h4 { margin: 0 0 10px 0; color: #495057; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+.dash-number { font-size: 24px; font-weight: bold; color: #2f6fed; }
+.dash-item { font-size: 12px; padding: 5px 0; border-bottom: 1px dashed #ddd; color: #555; }
 
-.compact th, .compact td { 
-    padding: 4px 6px; 
-    font-size: 13px; 
-}
-
-/* 🎯 CORREÇÃO DA COLUNA DO HISTÓRICO 🎯 */
-#historicoTab table {
-    table-layout: fixed; /* Força o navegador a respeitar os tamanhos das colunas */
-}
-
-#historicoTab th:first-child, 
-#historicoTab td:first-child {
-    width: 32px !important;    /* Largura cravada */
-    padding: 0 !important;     /* Remove espaços que desalinhavam o checkbox */
-    text-align: center !important;
-    line-height: 0;            /* Remove altura extra de texto */
-}
-
-#historicoTab td {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis; /* Adiciona "..." se o nome for muito longo */
-}
-
-.hist-check {
-    margin: 0 !important;
-    padding: 0;
-    cursor: pointer;
-    width: 16px;
-    height: 16px;
-    vertical-align: middle;
-}
-
-/* DASHBOARD DESIGN */
-.dashboard-box { 
-    display: grid; 
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
-    gap: 15px; 
-    margin-bottom: 20px; 
-}
-
-.dash-card { 
-    background: #f8f9fa; 
-    padding: 15px; 
-    border-radius: 8px; 
-    border: 1px solid #dee2e6; 
-}
-
-.dash-card h4 { 
-    margin: 0 0 10px 0; 
-    color: #495057; 
-    border-bottom: 1px solid #eee; 
-    padding-bottom: 5px; 
-}
-
-.dash-number { 
-    font-size: 24px; 
-    font-weight: bold; 
-    color: #2f6fed; 
-}
-
-.dash-item { 
-    font-size: 12px; 
-    padding: 5px 0; 
-    border-bottom: 1px dashed #ddd; 
-    color: #555; 
-}
-
-.dash-item:last-child { border: none; }
-
-/* ESTOQUE VISUAL (BARRAS) */
-.progress-container { 
-    width: 100%; 
-    background: #eee; 
-    height: 8px; 
-    border-radius: 4px; 
-    overflow: hidden; 
-    margin-top: 5px; 
-}
-
-.progress-bar { 
-    height: 100%; 
-    transition: width 0.3s; 
-}
-
-/* STATUS CORES */
+/* BARRAS DE ESTOQUE */
+.progress-container { width: 100%; background: #eee; height: 8px; border-radius: 4px; overflow: hidden; margin-top: 5px; }
+.progress-bar { height: 100%; transition: width 0.3s; }
 .critico { background: #ffe5e5; }
-.baixo   { background: #fff9e6; }
-.ok      { background: #f0fff0; }
+.baixo { background: #fff9e6; }
+.ok { background: #f0fff0; }
 
-/* FORMULÁRIOS E BOTÕES */
-button { 
-    padding: 8px 15px; 
-    border: none; 
-    border-radius: 4px; 
-    background: #2f6fed; 
-    color: #fff; 
-    font-weight: bold; 
-    cursor: pointer; 
-    transition: opacity 0.2s;
-}
+/* FORMULÁRIOS */
+button { padding: 8px 15px; border: none; border-radius: 4px; background: #2f6fed; color: #fff; font-weight: bold; cursor: pointer; }
+input, select { padding: 8px; margin: 5px 0; width: 100%; max-width: 250px; border: 1px solid #ccc; border-radius: 4px; }
 
-button:hover { opacity: 0.8; }
-
-input, select { 
-    padding: 8px; 
-    margin: 5px 0; 
-    width: 100%; 
-    max-width: 250px; 
-    border: 1px solid #ccc; 
-    border-radius: 4px; 
-    box-sizing: border-box; 
-}
-
-#toast {
-    visibility: hidden;
-    min-width: 250px;
-    background-color: #333;
-    color: #fff;
-    text-align: center;
-    border-radius: 5px;
-    padding: 16px;
-    position: fixed;
-    z-index: 1000;
-    left: 50%;
-    bottom: 30px;
-    transform: translateX(-50%);
-}
-
-#toast.show {
-    visibility: visible;
-    animation: fadein 0.5s, fadeout 0.5s 2.5s;
-}
-
+#toast { visibility: hidden; min-width: 250px; background-color: #333; color: #fff; text-align: center; border-radius: 5px; padding: 16px; position: fixed; z-index: 1000; left: 50%; bottom: 30px; transform: translateX(-50%); }
+#toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
 @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
 @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
-
-
 </style>
 </head>
 <body>
 
-<div style="text-align: center; margin-bottom: 30px; border-bottom: 3px solid #f1c40f; padding-bottom: 15px;">
-    <h1 style="margin: 0; font-size: 38px; letter-spacing: 4px; font-family: 'Arial Black', sans-serif; color: #2c3e50;">
-    FULL <span style="color: #f1c40f; text-shadow: 1px 1px 2px rgba(0,0,0,0.2);">CONTROL</span> S.A. 🚀
-</h1>
-    <div style="margin-top: 5px; font-weight: bold; color: #7f8c8d; letter-spacing: 2px;">
-        ⚙️ GESTÃO DE SEMI ACABADOS | ELKA PLÁSTICOS
+<div class="container">
+    <div style="display: flex; align-items: center; justify-content: center; gap: 40px; margin-bottom: 40px; border-bottom: 4px solid #f1c40f; padding-bottom: 20px; flex-wrap: wrap;">
+    
+   <div style="flex: 0 0 auto; text-align: center; background: transparent;">
+    <img src="Image_1.png" 
+         alt="Logo Full Control" 
+         style="height: 170px; 
+                width: auto; 
+                max-width: 100%; 
+                mix-blend-mode: multiply; /* Faz o branco do fundo da imagem sumir */
+                display: block; 
+                margin: 0 auto;">
+</div>
+
+    <div style="flex: 1 1 auto; min-width: 400px; text-align: center;">
+        <h1 style="margin: 0; font-size: 52px; letter-spacing: 6px; font-family: 'Arial Black', sans-serif; color: #2c3e50; text-shadow: 1px 1px 2px rgba(0,0,0,0.1);">
+            FULL <span style="color: #f1c40f;">CONTROL</span> S.A. 🚀
+        </h1>
+        
+        <div style="margin-top: 10px; font-weight: bold; color: #7f8c8d; font-size: 20px; letter-spacing: 2px;">
+            ⚙️ GESTÃO DE SEMI ACABADOS | ELKA PLÁSTICOS
+        </div>
+        
     </div>
 </div>
+
     <div class="tabs">
         <button class="tab-btn active" onclick="openTab('dashboard',this)">Dashboard</button>
-        <button class="tab-btn" onclick="openTab('cadastro',this)">Cadastro</button>
+        <button class="tab-btn" onclick="openTab('cadastro',this)">Cadastro / Importar</button>
         <button class="tab-btn" onclick="openTab('bom',this)">BOM</button>
         <button class="tab-btn" onclick="openTab('entrada',this)">Entrada</button>
         <button class="tab-btn" onclick="openTab('producao',this)">Produção</button>
         <button class="tab-btn" onclick="openTab('estoqueTab',this)">Estoque</button>
         <button class="tab-btn" onclick="openTab('historicoTab',this)">Histórico</button>
-    </div>
+    
+       <button onclick="gerarRelatorioFaltas()" style="margin-left: auto; padding: 10px 20px; background: #4A90E2; color: white; font-weight: bold; border-radius: 5px; border: none; cursor: pointer; white-space: nowrap;">
 
-    <div id="dashboard" class="tab active">
-        <div class="dashboard-box" id="dashCards"></div>
-        <div class="dashboard-box">
-            <div class="dash-card">
-                <h4>⚠️ Estoque Crítico (< 100)</h4>
-                <div id="dashCritico"></div>
-            </div>
-            <div class="dash-card">
-                <h4>🏭 Produção Hoje</h4>
-                <div id="dashProducao"></div>
-            </div>
-            <div class="dash-card">
-                <h4>🕒 Últimas Atividades</h4>
-                <div id="dashAtividade"></div>
+        🔍 Simular Produção
+
+      </button>
+   
+   </div>
+
+   <div id="dashboard" class="tab active">
+    <div id="alertaEstoque" style="display:none; margin-bottom:20px; padding:15px; background:#fff5f5; border-left:5px solid #ff4d4d; border-radius:5px; color:#c02d2d; font-weight:bold; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+        <div style="display:flex; align-items:center; gap:10px;">
+            <span style="font-size:24px;">⚠️</span>
+            <div>
+                <div id="alertaTitulo" style="font-size:16px;">Itens em nível crítico no Estoque Global!</div>
+                <div id="alertaLista" style="font-size:12px; font-weight:normal; margin-top:5px;"></div>
             </div>
         </div>
     </div>
 
-    <div id="cadastro" class="tab">
-        <section>
-            <h3>Registrar Referência/Produto</h3>
-            <input id="refCod" placeholder="Ex: 1010">
-            <input id="refNome" placeholder="Ex: Cadeira Pro">
+    <div class="dashboard-box" id="dashCards"></div>
+    
+    <div class="dashboard-box">
+        <div class="dash-card"><h4>⚠️ Estoque Crítico</h4><div id="dashCritico"></div></div>
+        <div class="dash-card"><h4>🏭 Produção Hoje</h4><div id="dashProducao"></div></div>
+        <div class="dash-card"><h4>🕒 Últimas Atividades</h4><div id="dashAtividade"></div></div>
+    </div>
+    
+ </div>
+
+  <div id="cadastro" class="tab">
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+        
+        <section style="background: #f9f9f9; padding: 15px; border-radius: 8px;">
+            <h3>Cadastro Manual</h3>
+            <label>Nova Referência:</label><br>
+            <input id="refCod" placeholder="Cód Ref"> <input id="refNome" placeholder="Nome Ref">
             <button onclick="addRef()">Cadastrar</button>
-        </section>
-        <section>
-            <h3>Registrar Peça</h3>
+            <hr>
+            <label>Nova Peça:</label><br>
             <select id="pecaRef"></select>
-            <input id="pCod" placeholder="Ex: P01">
-            <input id="pNome" placeholder="Ex: Parafuso 5mm">
+            <input id="pCod" placeholder="Cód Peça"> <input id="pNome" placeholder="Nome Peça">
             <input id="pQtd" type="number" placeholder="Estoque Inicial">
+            <input id="pTamp" placeholder="Tampografia">
+            <input id="pTrans" placeholder="Transfer">
+            <input id="pSleeve" placeholder="Sleeve">
             <button onclick="addPeca()">Cadastrar Peça</button>
         </section>
+
+<section style="background: #fff3e0; padding: 15px; border-radius: 8px; border: 2px dashed #ff9800; margin-top: 10px;">
+    <h3>Importar Referências (CSV)</h3>
+    <input type="file" id="inputRefs" accept=".csv" onchange="processarRefsCSV(this)">
+    <p style="font-size: 0.8em; color: #666;">Ordem: Cód. Ref ; Nome da Ref</p>
+</section>
+ 
+<section style="background: #e3f2fd; padding: 15px; border-radius: 8px; border: 2px dashed #2196f3;">
+    <h3>Gestão de Dados (CSV)</h3>
+    
+    <label><b>Importar Peças:</b></label>
+    <input type="file" id="inputArquivo" accept=".csv" onchange="processarArquivo(this)">
+    
+    <hr>
+    
+    <label><b>Exportar Inventário:</b></label>
+    <button onclick="exportarCSV()" style="background: #28a745; width: 100%; margin-top: 10px;">
+        📥 Baixar Inventário Atual (CSV)
+    </button>
+    
+    <div id="areaFeedback" style="margin-top:10px;"></div>
+    <p style="margin-top: 15px; font-size: 0.8em; color: #666;">
+        <b>Ordem das colunas:</b><br>
+        Cód. Peça ; Descrição ; Cód. REF ; Tampo ; Transfer ; Sleeve
+    </p>
+</section>
+
     </div>
+</div>
 
     <div id="bom" class="tab">
         <section>
@@ -291,7 +229,7 @@ input, select {
             <select id="entRef"></select>
             <select id="entPeca"></select>
             <input id="entQtd" type="number" placeholder="Quantidade">
-            <button onclick="entradaMaterial()">Registrar</button>
+            <button onclick="registrarEntrada()">Registrar</button>
         </section>
     </div>
 
@@ -305,505 +243,1473 @@ input, select {
     </div>
 
     <div id="estoqueTab" class="tab">
-        <section>
-           <h3>Gestão de Estoque</h3>
-            <div style="margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
-            <span style="font-size: 18px;">🔍</span>
-            <input type="text" id="inputBusca" onkeyup="filtrarEstoque()" placeholder="Digite a REF ou nome da peça..." 
-                style="width: 100%; padding: 10px; border: 2px solid #2c3e50; border-radius: 6px; font-size: 16px;">
+        <div style="margin-bottom: 15px;">
+            <input type="text" id="inputBusca" onkeyup="filtrarEstoque()" placeholder="🔍 Buscar Referência ou Peça..." style="max-width: 100%; font-size: 16px;">
         </div>
-           <div id="listaRefs"></div> </section>
+        <div style="background: #f9f9f9; border: 1px solid #ddd; padding: 15px; border-radius: 8px; margin-top: 20px;">
+            <h3 style="margin-top:0;">🔄 Processamento de Peças (Transformação)</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div>
+                    <label>Peça Bruta (Origem):</label>
+                    <input type="text" id="procOrigem" placeholder="Ex: 30867" style="width:100%; padding:8px;">
+                </div>
+                <div>
+                    <label>Peça Acabada (Destino):</label>
+                    <input type="text" id="procDestino" placeholder="Ex: 400867AM" style="width:100%; padding:8px;">
+                </div>
+                <div>
+                    <label>Tipo de Processo:</label>
+                    <select id="procTipo" style="width:100%; padding:8px;">
+                        <option value="Tampografia">Tampografia</option>
+                        <option value="Pintura">Pintura</option>
+                        <option value="Transfer">Transfer</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Quantidade:</label>
+                    <input type="number" id="procQtd" placeholder="0" style="width:100%; padding:8px;">
+                </div>
+            </div>
+            <button onclick="executarProcessamento()" style="width:100%; margin-top:15px; background:#2f6fed; color:white; padding:10px; font-weight:bold; cursor:pointer;">
+                CONFIRMAR PROCESSAMENTO
+            </button>
+        </div>
+        <div id="listaRefs"></div>
     </div>
 
     <div id="historicoTab" class="tab">
-        <button onclick="apagarHistoricoSelecionado()">🗑️ Apagar Selecionados</button>
-        <table style="table-layout: fixed; width: 100%;">
-  <colgroup>
-    <col style="width: 25px;"> <col style="width: 100px;"> <col style="width: 80px;">  <col>                       <col style="width: 80px;">  <col style="width: 130px;"> </colgroup>
-  <thead>
-    <tr>
-      <th>✔</th>
-      <th>Tipo</th>
-      <th>Ref</th>
-      <th>Item</th>
-      <th>Qtd</th>
-      <th>Data</th>
-    </tr>
-  </thead>
-  <tbody id="historico"></tbody>
-</table>
+    <div style="margin-bottom: 10px; display: flex; gap: 10px;">
+        <button onclick="selecionarTodosHist()" style="background: #6c757d;">✅ Selecionar Tudo</button>
+        <button onclick="apagarSelecionados()" style="background: #dc3545;">🗑️ Apagar Selecionados</button>
     </div>
+    <table>
+        <thead>
+    <tr>
+        <th style="width: 40px;">
+            <input type="checkbox" id="checkTodos" onclick="marcarTodos(this)">
+        </th>
+        <th>Tipo</th>
+        <th>Ref</th>
+        <th>Peça</th>
+        <th>Qtd</th>
+        <th>Data</th>
+    </tr>
+</thead>
+        <tbody id="historico"></tbody>
+    </table>
 </div>
 
-<div id="toast">Mensagem aqui</div>
+<div id="toast"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 <script>
-/* CONEXÃO SUPABASE */
 const SUPABASE_URL = 'https://dyrsiriwnjnsoboaxbna.supabase.co';
+
 const SUPABASE_KEY = 'sb_publishable_lxQaI_VE2V_EWBstaEc5Pw_O8SabJge';
+
 const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
 
 const CRITICO_PADRAO = 100; 
 const MINIMO_PADRAO = 500;
 
-/* DADOS DO SISTEMA */
-let refs = JSON.parse(localStorage.getItem('refsV12')) || [];
-let pecas = JSON.parse(localStorage.getItem('pecasV12')) || [];
-let bom = JSON.parse(localStorage.getItem('bomV12')) || [];
-let hist = JSON.parse(localStorage.getItem('histV12')) || [];
+let refs = [], pecas = [], bom = [], hist = [];
+
+// Coloque esta função logo após as variáveis globais
+async function renderSistema() {
+    renderDashboard();
+    renderSelects();
+    renderEstoque();
+    renderBOM();
+    renderHistorico();
+}
+
+function marcarTodos(origem) {
+    // Procura todos os checkboxes que têm a classe 'checkHist' na tabela
+    const checkboxes = document.querySelectorAll('.checkHist');
+    
+    // Para cada um deles, define o estado igual ao do checkbox "mestre"
+    checkboxes.forEach(cb => {
+        cb.checked = origem.checked;
+    });
+}
+
+function gerarRelatorioFaltas() {
+    let refDesejada = prompt("Digite o código da Referência que deseja produzir:");
+    if (!refDesejada) return;
+
+    let estrutura = bom.filter(b => b.ref === refDesejada);
+    if (estrutura.length === 0) return alert("Esta referência não possui BOM cadastrada!");
+
+    let qtdProduzir = prompt(`Quantas unidades da Ref ${refDesejada} você quer montar?`, "100");
+    if (!qtdProduzir || isNaN(qtdProduzir)) return;
+
+    let msg = `📋 RELATÓRIO DE FALTAS - REF ${refDesejada}\n`;
+    msg += `Meta: ${qtdProduzir} unidades\n`;
+    msg += `------------------------------------------\n`;
+
+    estrutura.forEach(item => {
+        let p = pecas.find(x => x.cod === item.peca); // Busca global pelo código da peça
+        let estoqueTotal = pecas.filter(x => x.cod === item.peca).reduce((s, i) => s + i.qtd, 0);
+        let necessidade = item.qtd * qtdProduzir;
+        let saldo = estoqueTotal - necessidade;
+
+        if (saldo < 0) {
+            msg += `❌ ${item.peca} - ${p ? p.nome : '?'}: Faltam ${Math.abs(saldo)} pçs\n`;
+        } else {
+            msg += `✅ ${item.peca}: OK (Sobra ${saldo})\n`;
+        }
+    });
+
+    alert(msg);
+}
+
+async function processarArquivo(input) {
+    const file = input.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async function(e) {
+        try {
+            const text = e.target.result;
+            const linhas = text.split(/\r?\n/).filter(l => l.trim() !== '' && l.includes(';'));
+            let novasPecas = [];
+// Dentro do seu processarArquivo, substitua o loop for por este:
+for (let i = 1; i < linhas.length; i++) {
+    let col = linhas[i].split(';').map(c => c.replace(/"/g, '').trim());
+
+    if (col.length >= 3 && col[0] !== "") {
+        novasPecas.push({
+            cod: String(col[0]),
+            nome: String(col[1] || ""), // Garante que nunca venha undefined
+            ref: String(col[2] || ""), 
+            tampografia: col[3] || "NÃO",
+            transfer: col[4] || "NÃO",
+            sleeve: col[5] || "NÃO",
+            qtd: 0
+        });
+    }
+}
+
+     const { error } = await _supabase.from('pecas').upsert(novasPecas);
+
+        if (error) {
+                alert("Erro ao importar: " + error.message);
+         } else {
+          mostrarAviso(`✅ ${novasPecas.length} peças importadas!`);
+                
+          const { data } = await _supabase.from('pecas').select('*');
+          if(data) {
+           pecas = data;
+            console.table(pecas); // CONFIRA AQUI SE A COLUNA 'NOME' TEM DADOS
+}
+                
+     renderSelects();
+     atualizarSubSelects(); 
+     renderSistema();
+ }
+} catch (err) {
+     console.error("Erro na leitura:", err);
+        }
+    };
+    reader.readAsText(file, "UTF-8");
+}
+async function processarRefsCSV(input) {
+    const file = input.files[0];
+    const reader = new FileReader();
+
+    reader.onload = async function(e) {
+        const text = e.target.result;
+        const linhas = text.split(/\r?\n/).filter(l => l.trim() !== "");
+        
+        let novasRefs = [];
+        let codigosUnicos = new Set();
+
+        for (let i = 1; i < linhas.length; i++) {
+            // Divide a linha e pega apenas os dois primeiros elementos
+            let partes = linhas[i].split(';').map(c => c.replace(/"/g, '').trim());
+            let cod = partes[0];
+            let nome = partes[1];
+            
+            // Só adiciona se o código existir e não for duplicado
+            if (cod && !codigosUnicos.has(cod)) {
+                novasRefs.push({ cod: cod, nome: nome });
+                codigosUnicos.add(cod);
+            }
+        }
+
+        const { error } = await _supabase.from('refs').upsert(novasRefs);
+        
+        if (error) {
+            console.error("Erro Supabase:", error);
+            alert("Erro ao salvar: " + error.message);
+        } else {
+            mostrarAviso(`✅ ${novasRefs.length} referências importadas!`);
+            // Atualiza a variável global e o render
+            const { data } = await _supabase.from('refs').select('*');
+            refs = data;
+            renderSistema();
+        }
+    };
+    reader.readAsText(file, "UTF-8");
+}
 
 function mostrarAviso(msg) {
-    const toast = document.getElementById("toast");
-    toast.innerText = msg;
-    toast.className = "show";
-    setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
+    const t = document.getElementById("toast");
+    t.innerText = msg; t.className = "show";
+    setTimeout(() => { t.className = ""; }, 3000);
 }
 
-function fNum(n) { 
-    return Number(n).toLocaleString('pt-BR', { 
-        minimumFractionDigits: 0, 
-        maximumFractionDigits: 3 
-    }); 
-}
+function fNum(n) { return Number(n).toLocaleString('pt-BR', { maximumFractionDigits: 2 }); }
 
-function formatarData(iso){
-    let d = new Date(iso);
-    return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
-}
+function formatarData(iso) {
+    if (!iso) return '---';
 
-/* DASHBOARD */
-function renderDashboard(){
-    let totalRefs = refs.length;
-    let estoqueTotal = pecas.reduce((s,p)=> s + p.qtd, 0);
-    let hoje = new Date().toISOString().split('T')[0];
-    let eHoje = hist.filter(h => h.tipo === 'Entrada' && h.dataISO === hoje).reduce((s,h)=> s + h.qtd, 0);
-    let pHoje = hist.filter(h => h.tipo === 'Producao' && h.dataISO === hoje).reduce((s,h)=> s + h.qtd, 0);
-
-    document.getElementById('dashCards').innerHTML = `
-        <div class="dash-card"><h4>Referências</h4><div class="dash-number">${totalRefs}</div></div>
-        <div class="dash-card"><h4>Itens em Estoque</h4><div class="dash-number">${fNum(Math.floor(estoqueTotal))}</div></div>
-        <div class="dash-card"><h4>Entradas (Hoje)</h4><div class="dash-number">${fNum(Math.floor(eHoje))}</div></div>
-        <div class="dash-card"><h4>Produção (Hoje)</h4><div class="dash-number">${fNum(Math.floor(pHoje))}</div></div>
-    `;
-
-    let critList = pecas.filter(p => p.qtd <= CRITICO_PADRAO);
-    let critDiv = document.getElementById('dashCritico');
-    critDiv.innerHTML = critList.length === 0 ? '<div class="dash-item">✅ Tudo OK</div>' : '';
-    critList.forEach(p => {
-        critDiv.innerHTML += `<div class="dash-item">🔴 ${p.nome} (${p.ref}): <b>${fNum(p.qtd)}</b></div>`;
-    });
-
-    let prodDiv = document.getElementById('dashProducao');
-    let prodHoje = hist.filter(h => h.tipo === 'Producao' && h.dataISO === hoje);
-    prodDiv.innerHTML = prodHoje.length === 0 ? '<div class="dash-item">Nenhuma OP hoje</div>' : '';
-    prodHoje.forEach(h => {
-        prodDiv.innerHTML += `<div class="dash-item">🏭 Ref ${h.ref}: ${fNum(h.qtd)} un.</div>`;
-    });
-
-    let atvDiv = document.getElementById('dashAtividade');
-    atvDiv.innerHTML = '';
-    hist.slice(0, 8).forEach(h => {
-        atvDiv.innerHTML += `<div class="dash-item"><b>${h.tipo}</b>: ${h.ref} (${fNum(h.qtd)}) <br> <small>${formatarData(h.data)}</small></div>`;
+    return new Date(iso).toLocaleString('pt-BR', {
+        timeZone: 'America/Sao_Paulo',
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
     });
 }
 
-function calcularProducaoMaxima(pecaCod, pecaRef, qtdAtual) {
-    let itemBOM = bom.find(b => b.peca === pecaCod && b.ref === pecaRef);
-    if (!itemBOM || itemBOM.qtd <= 0) return "-";
-    let maximo = Math.floor(qtdAtual / itemBOM.qtd);
-    return fNum(maximo);
+function agoraLocalISO() {
+    const agora = new Date();
+    const ano = agora.getFullYear();
+    const mes = String(agora.getMonth() + 1).padStart(2, '0');
+    const dia = String(agora.getDate()).padStart(2, '0');
+    const hora = String(agora.getHours()).padStart(2, '0');
+    const min = String(agora.getMinutes()).padStart(2, '0');
+    const seg = String(agora.getSeconds()).padStart(2, '0');
+
+    return `${ano}-${mes}-${dia}T${hora}:${min}:${seg}`;
 }
 
-/* ESTOQUE */
+function toggleTabela(header) {
+    // Procura a tabela dentro do pai do elemento clicado
+    // Isso é mais seguro do que confiar no "próximo elemento"
+    let container = header.parentElement;
+    let tabela = container.querySelector('table');
+    
+    if (tabela) {
+        tabela.style.display = (tabela.style.display === 'none' || tabela.style.display === '') ? 'table' : 'none';
+    }
+}
 
-function renderEstoque(){
+// Função para saber se uma peça pertence a uma referência consultando a tabela BOM
+function pecaPertenceARef(pecaCod, refCod) {
+    if (!bom) return false;
+    // Procura na tabela 'bom' se existe esse par
+    return bom.some(item => String(item.peca).trim() === String(pecaCod).trim() && 
+                           String(item.ref).trim() === String(refCod).trim());
+}
+
+
+function renderEstoque() {
     let div = document.getElementById('listaRefs');
-    if(!div) return;
+    if (!div || !refs || !pecas) return;
     div.innerHTML = '';
-    refs.sort((a, b) => Number(a.cod) - Number(b.cod));
 
-    refs.forEach(r => {
+    const refsOrdenadas = [...refs].sort((a, b) => 
+        String(a.cod).localeCompare(String(b.cod), undefined, {numeric: true})
+    );
+
+    refsOrdenadas.forEach((r) => {
+        // --- CÁLCULO DO TOTAL DA REFERÊNCIA (KIT COMPLETO) ---
+        const itensDaBOM = bom.filter(b => String(b.ref) === String(r.cod));
+        let podeProduzirTotal = Infinity;
+
+        if (itensDaBOM.length === 0) {
+            podeProduzirTotal = 0;
+        } else {
+            itensDaBOM.forEach(item => {
+                const pecaEstoque = pecas.find(p => String(p.cod) === String(item.peca));
+                const qtdNoEstoque = pecaEstoque ? (pecaEstoque.qtd || 0) : 0;
+                const qtdNecessaria = item.qtd || 1;
+                const disponivel = Math.floor(qtdNoEstoque / qtdNecessaria);
+                if (disponivel < podeProduzirTotal) podeProduzirTotal = disponivel;
+            });
+        }
+        if (podeProduzirTotal === Infinity) podeProduzirTotal = 0;
+
+        // --- RENDERIZAÇÃO DO BLOCO ---
         let block = document.createElement('div');
         block.style.cssText = "border:1px solid #ccc; margin-bottom:10px; border-radius:5px; overflow:hidden;";
+        
         block.innerHTML = `
-            <div style="background:#eee; padding:10px; display:flex; justify-content:space-between; align-items:center;">
-                <span style="cursor:pointer; font-weight:bold" onclick="this.parentElement.nextSibling.style.display=this.parentElement.nextSibling.style.display==='none'?'table':'none'">
-                    📁 ${r.nome} (${r.cod})
-                </span>
-                <div style="display:flex; gap:5px;">
-                    <button onclick="exportarRefEspecifica('${r.cod}', '${r.nome}')" style="background:#28a745; padding:4px 8px; font-size:12px;">📥 CSV</button>
-                    <button onclick="excluirReferenciaCompleta('${r.cod}')" style="background:#dc3545; padding:4px 8px; font-size:12px;">🗑️ Excluir Ref</button>
+            <div style="background:#eee; padding:10px; display:flex; justify-content:space-between; align-items:center; cursor:pointer;" onclick="toggleTabela(this)">
+                <div>
+                    <span style="font-weight:bold">📁 ${r.nome || 'Sem Nome'} (${r.cod})</span>
+                    <span style="margin-left:15px; background:#28a745; color:white; padding:3px 10px; border-radius:12px; font-size:12px; font-weight:bold;">
+                        Pode montar: ${podeProduzirTotal.toLocaleString('pt-BR')} un.
+                    </span>
                 </div>
+                <button onclick="event.stopPropagation(); excluirReferenciaCompleta('${r.cod}')" style="background:red; color:white; padding:4px 8px; font-size:11px; border:none; border-radius:4px; cursor:pointer;">🗑️ Excluir</button>
             </div>`;
         
         let tbl = document.createElement('table');
         tbl.style.display = 'none';
-        tbl.innerHTML = `<thead><tr><th>Cód</th><th>Peça</th><th>Estoque</th><th style="color:#2f6fed">Máx.</th><th>Status</th><th>Ações</th></tr></thead>`;
-        let tbody = document.createElement('tbody');
+        tbl.style.width = '100%';
+        // ADICIONADO A COLUNA "MÁX." NO THEAD
+        tbl.innerHTML = `<thead><tr><th>Cód</th><th>Peça</th><th>Estoque</th><th style="color: #2f6fed;">Máx.</th><th>Ações</th></tr></thead>`;
         
-        pecas.filter(p => p.ref === r.cod).forEach(p => {
-            let pct = Math.min((p.qtd / MINIMO_PADRAO) * 100, 100);
-            let cor = p.qtd <= CRITICO_PADRAO ? '#ff4d4d' : (p.qtd <= MINIMO_PADRAO ? '#ffcc00' : '#2ecc71');
-            let prodMax = calcularProducaoMaxima(p.cod, p.ref, p.qtd);
+        let tbody = document.createElement('tbody');
+        const pecasDaRef = pecas.filter(p => p.ref && String(p.ref).split('/').includes(String(r.cod)));
+
+        pecasDaRef.forEach(p => {
+            // --- CÁLCULO DA QUANTIDADE MÁXIMA POR PEÇA ---
+            // Procura na BOM quanto desta peça específica é necessário para esta referência (r.cod)
+            const dadoBOM = bom.find(b => String(b.peca) === String(p.cod) && String(b.ref) === String(r.cod));
+            
+            let maxIndividual = "---";
+            let corMax = "#2f6fed"; // Azul padrão
+
+            if (dadoBOM && dadoBOM.qtd > 0) {
+                let calculo = Math.floor(p.qtd / dadoBOM.qtd);
+                maxIndividual = calculo.toLocaleString('pt-BR');
+                
+                // Cores de alerta se estiver baixo (igual à sua imagem)
+                if (calculo <= 100) corMax = "#d9534f"; // Vermelho
+                else if (calculo <= 500) corMax = "#f0ad4e"; // Laranja
+            }
+
             let tr = document.createElement('tr');
-            tr.className = p.qtd <= CRITICO_PADRAO ? 'critico' : (p.qtd <= MINIMO_PADRAO ? 'baixo' : 'ok');
             tr.innerHTML = `
-                <td>${p.cod}</td><td>${p.nome}</td><td>${fNum(p.qtd)}</td>
-                <td style="font-weight:bold; color:#2f6fed">${prodMax}</td>
-                <td style="width:120px"><div class="progress-container"><div class="progress-bar" style="width:${pct}%; background:${cor}"></div></div></td>
-                <td><button onclick="excluirPeca('${p.ref}','${p.cod}')" style="background:red; padding:2px 5px">X</button></td>`;
+                <td>${p.cod}</td>
+                <td>${p.nome}</td>
+                <td style="font-weight:bold;">
+                    ${parseFloat(p.qtd || 0).toLocaleString('pt-BR')}
+                </td>
+                <td style="font-weight:bold; color: ${corMax};">
+                    ${maxIndividual}
+                </td>
+                <td>
+    <button onclick="ajusteRapido('${p.id}')" style="background:#f0ad4e; border:none; padding:4px 8px; cursor:pointer; border-radius:3px;">✏️</button>
+    <button onclick="excluirPeca('${p.id}')" style="background:#dc3545; border:none; padding:4px 8px; cursor:pointer; border-radius:3px;">🗑️</button>
+</td>
+            `;
             tbody.appendChild(tr);
         });
+        
         tbl.appendChild(tbody);
         block.appendChild(tbl);
         div.appendChild(block);
     });
 }
 
-/* SALVAMENTO */
-function salvarSistema(){
-    localStorage.setItem('refsV12', JSON.stringify(refs));
-    localStorage.setItem('pecasV12', JSON.stringify(pecas));
-    localStorage.setItem('bomV12', JSON.stringify(bom));
-    localStorage.setItem('histV12', JSON.stringify(hist));
-    renderSistema();
+async function ajusteRapido(id) {
+    let p = pecas.find(x => x.id == id);
+    if (!p) return alert("Erro: Peça não encontrada no sistema.");
+
+    let novoValor = prompt(`Editar ${p.nome}\nQuantidade atual: ${p.qtd}`, p.qtd);
+    
+    if (novoValor !== null && novoValor !== "") {
+        try {
+            // 1. Atualiza a peça
+            const { error: errPeca } = await _supabase
+                .from('pecas')
+                .update({ qtd: parseInt(novoValor) })
+                .eq('id', id);
+
+            if (errPeca) throw errPeca;
+
+            // 2. REGISTA NO HISTÓRICO (O passo que faltava)
+            const { error: errHist } = await _supabase
+                .from('hist')
+                .insert([{
+                    tipo: 'AJUSTE', // Ou 'ENTRADA' se preferir que fique verde
+                    ref: p.ref || '---',
+                    peca: p.nome,
+                    qtd: parseInt(novoValor) - parseInt(p.qtd), // Salva a diferença
+                    data: agoraLocalISO()
+                }]);
+
+            if (errHist) throw errHist;
+            
+            // 3. Recarrega tudo e atualiza as telas
+            await carregarDadosIniciais();
+            renderSistema();
+            renderHistorico();
+            renderDashboard();
+            mostrarAviso("✅ Estoque e Histórico atualizados!");
+            
+        } catch (err) {
+            alert("Erro ao salvar: " + err.message);
+        }
+    }
 }
+
+function calcularProducaoMaxima(pecaCod, pecaRef, qtdAtual) {
+    let itemBOM = bom.find(b => b.peca === pecaCod && b.ref === pecaRef);
+    if (!itemBOM || itemBOM.qtd <= 0) return "-";
+    return Math.floor(qtdAtual / itemBOM.qtd);
+}
+
+// --- FUNÇÃO DE EDIÇÃO DA BOM ---
+async function editarBOM(ref, pecaCod) {
+    const item = bom.find(b => b.ref === ref && b.peca === pecaCod);
+    if(!item) return;
+    
+    let novaQtd = prompt(`Nova quantidade necessária de ${pecaCod} para 1 unidade da Ref ${ref}:`, item.qtd);
+    
+    if (novaQtd !== null && !isNaN(parseFloat(novaQtd))) {
+        novaQtd = parseFloat(novaQtd);
+        try {
+            const { error } = await _supabase.from('bom').update({ qtd: novaQtd }).match({ ref: ref, peca: pecaCod });
+            if (error) throw error;
+            
+            item.qtd = novaQtd;
+            salvarSistema();
+            mostrarAviso("Quantidade atualizada na BOM!");
+        } catch (err) {
+            console.error(err);
+            mostrarAviso("Erro ao atualizar BOM.");
+        }
+    }
+}
+
+function renderBOM() {
+    const lista = document.getElementById('bomLista');
+    const refSelecionada = document.getElementById('bomRef').value;
+
+    if (!lista || !refSelecionada) return;
+
+    const itens = bom.filter(item => String(item.ref) === String(refSelecionada));
+
+    if (itens.length === 0) {
+        lista.innerHTML = `<tr><td colspan="5">Nenhuma estrutura cadastrada.</td></tr>`;
+        return;
+    }
+
+    let html = '';
+
+    itens.forEach(item => {
+        html += `
+            <tr>
+                <td>${item.ref}</td>
+                <td>${item.peca}</td>
+                <td>${item.nome || '---'}</td>
+                <td>
+   <input 
+    type="number" 
+    value="${item.qtd}" 
+    step="0.01"
+    min="0.01"
+    class="qtd-input"
+    style="width:70px; text-align:center;"
+    onkeydown="handleQtdNavigation(event, this)"
+    onblur="salvarQtdComDelay('${item.ref}', '${item.peca}', this)"
+>
+</td>
+<td>
+
+     <button onclick="removerItemBOM('${item.ref}', '${item.peca}')"
+         style="background:#dc3545;">🗑️</button>
+ </td>
+            </tr>
+        `;
+    });
+
+    lista.innerHTML = html;
+}
+
+async function atualizarQtdInline(ref, codPeca, input) {
+    let novaQtd = input.value;
+
+    // 🔎 pegar valor atual
+    const valorAtual = bom.find(i => 
+        String(i.ref) === String(ref) && 
+        String(i.peca) === String(codPeca)
+    )?.qtd;
+
+    // 🧠 1. SE NÃO MUDOU → NÃO FAZ NADA
+    if (Number(valorAtual) === Number(novaQtd)) return;
+
+    // ❌ validação
+   if (novaQtd === '' || isNaN(novaQtd) || Number(novaQtd) <= 0){
+        input.style.background = '#f8d7da';
+
+        // 🧠 2. VOLTA PRO VALOR ANTIGO (SEM RECARREGAR TUDO)
+        input.value = valorAtual;
+
+        setTimeout(() => input.style.background = '', 800);
+        return;
+    }
+
+    novaQtd = Number(novaQtd);
+
+    try {
+        const { error } = await _supabase
+            .from('bom')
+            .update({ qtd: novaQtd })
+            .eq('ref', ref)
+            .eq('peca', codPeca);
+
+        if (error) throw error;
+
+        // Atualiza local
+        let item = bom.find(i => 
+            String(i.ref) === String(ref) && 
+            String(i.peca) === String(codPeca)
+        );
+
+        if (item) item.qtd = novaQtd;
+
+        // 🟢 feedback sucesso
+        input.style.background = '#d4edda';
+        setTimeout(() => input.style.background = '', 500);
+
+    } catch (err) {
+        console.error(err);
+
+        input.style.background = '#f8d7da';
+
+        // 🧠 3. VOLTA PRO VALOR ANTIGO EM CASO DE ERRO
+        input.value = valorAtual;
+
+        setTimeout(() => input.style.background = '', 800);
+
+        alert("Erro ao salvar");
+    }
+}
+
+let timeoutQtd = {};
+
+function salvarQtdComDelay(ref, codPeca, input) {
+    const chave = ref + "_" + codPeca;
+
+    clearTimeout(timeoutQtd[chave]);
+
+    timeoutQtd[chave] = setTimeout(() => {
+        atualizarQtdInline(ref, codPeca, input);
+    }, 400);
+}
+
+
+function exportarCSV() {
+    // 1. O segredo para o Excel abrir direto em colunas no Brasil: sep=;
+    // O \ufeff garante que os acentos (ç, ã) apareçam perfeitos
+    let csvContent = "\ufeffsep=;\r\n";
+    
+    // 2. Cabeçalho com os nomes exatos das colunas
+    csvContent += "Código;Descrição;Stock Total;Diferença\r\n";
+
+    // 3. Agrupar peças por código (Soma o estoque global)
+    const codigosUnicos = [...new Set(pecas.map(p => String(p.cod).trim()))];
+
+    codigosUnicos.forEach(codigo => {
+        const itens = pecas.filter(p => String(p.cod).trim() === codigo);
+        const nomePeca = itens[0]?.nome || "Sem Descrição";
+        
+        // Soma o total de todas as referências
+        const estoqueTotal = itens.reduce((soma, item) => soma + (Number(item.qtd) || 0), 0);
+
+        // 4. Monta a linha. O último ";" cria a célula vazia da Diferença
+        csvContent += `${codigo};${nomePeca};${estoqueTotal};\r\n`;
+    });
+
+    // 5. Gera o arquivo de download usando Blob (mais estável)
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    
+    link.setAttribute("href", url);
+    link.setAttribute("download", `Inventario_FullControl_${new Date().toLocaleDateString().replace(/\//g, '-')}.csv`);
+    link.style.visibility = 'hidden';
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+async function addRef() {
+    const refCodEl = document.getElementById('refCod');
+    const refNomeEl = document.getElementById('refNome');
+
+    const cod = String(refCodEl.value || '').trim();
+    const nome = String(refNomeEl.value || '').trim();
+
+    if (!cod || !nome) {
+        alert("Preencha o código e o nome da referência!");
+        return;
+    }
+
+    const jaExiste = refs.find(r => String(r.cod).trim() === cod);
+    if (jaExiste) {
+        alert("Essa referência já está cadastrada!");
+        return;
+    }
+
+    const novaRef = { cod, nome };
+
+    try {
+        const { error } = await _supabase
+            .from('refs')
+            .insert([novaRef]);
+
+        if (error) throw error;
+
+        refs.push(novaRef);
+
+        renderSistema();
+        atualizarSubSelects?.();
+
+        refCodEl.value = '';
+        refNomeEl.value = '';
+
+        mostrarAviso("✅ Referência cadastrada com sucesso!");
+    } catch (err) {
+        console.error("Erro ao cadastrar referência:", err);
+        alert("Erro ao cadastrar referência: " + err.message);
+    }
+}
+//--- FUNÇÃO PARA ADICIONAR PEÇA---///
+
+async function addPeca() {
+    const r = document.getElementById('pecaRef').value;
+    const c = document.getElementById('pCod').value;
+    const n = document.getElementById('pNome').value;
+    const q = Number(document.getElementById('pQtd').value);
+    
+    // Novos campos que você criou no banco
+    const tamp = document.getElementById('pTamp')?.value || '';
+    const trans = document.getElementById('pTrans')?.value || '';
+    const slee = document.getElementById('pSleeve')?.value || '';
+
+    const novaPeca = { ref: r, cod: c, nome: n, qtd: q, tampografia: tamp, transfer: trans, sleeve: slee };
+    
+    // Insere no banco
+    const { error } = await _supabase.from('pecas').insert([novaPeca]);
+    
+    if (error) {
+        console.error(error);
+        return alert("Erro ao salvar: " + error.message);
+    }
+
+    pecas.push(novaPeca);
+    renderSistema(); // Atualiza a tela toda automaticamente
+    mostrarAviso("✅ Peça cadastrada com sucesso!");
+    
+    // Limpa os campos
+    document.getElementById('pCod').value = '';
+    document.getElementById('pNome').value = '';
+    document.getElementById('pQtd').value = '';
+}
+
+async function addBOM() {
+    const bomRef = document.getElementById('bomRef');
+    const bomPeca = document.getElementById('bomPeca');
+    const bomQtd = document.getElementById('bomQtd');
+
+    if (!bomRef.value || !bomPeca.value || !bomQtd.value) {
+        alert("Selecione a referência, a peça e informe a quantidade!");
+        return;
+    }
+
+    const refSelecionada = String(bomRef.value).trim();
+    const pecaSelecionada = String(bomPeca.value).trim();
+    const qtdSelecionada = Number(bomQtd.value);
+
+    if (isNaN(qtdSelecionada) || qtdSelecionada <= 0) {
+        alert("Informe uma quantidade válida!");
+        return;
+    }
+
+    const itemDuplicado = bom.find(item =>
+        String(item.ref).trim() === refSelecionada &&
+        String(item.peca).trim() === pecaSelecionada
+    );
+
+    if (itemDuplicado) {
+        alert("Essa peça já está cadastrada nessa estrutura BOM.");
+        return;
+    }
+
+    const pecaEncontrada = pecas.find(p =>
+        String(p.cod).trim() === pecaSelecionada
+    );
+
+    const nomeDaPeca = pecaEncontrada ? pecaEncontrada.nome : "Sem Nome";
+
+    const novoItem = {
+        ref: refSelecionada,
+        peca: pecaSelecionada,
+        nome: nomeDaPeca,
+        qtd: qtdSelecionada
+    };
+
+    try {
+        const { error } = await _supabase
+            .from('bom')
+            .insert([novoItem]);
+
+        if (error) throw error;
+
+        bom.push(novoItem);
+
+        renderBOM();
+        atualizarSubSelects();
+
+        bomPeca.value = "";
+        bomQtd.value = "";
+
+        mostrarAviso("✅ Peça adicionada na estrutura!");
+        console.log("Item adicionado com sucesso na BOM.");
+    } catch (err) {
+        console.error("Erro ao salvar na BOM:", err);
+        alert("Erro ao salvar na BOM: " + err.message);
+    }
+}
+
+async function removerItemBOM(ref, peca) {
+    if (!confirm("Tem certeza que deseja remover esta peça da BOM?")) return;
+
+    try {
+        // Usamos .eq para cada coluna, é mais seguro que o .match
+        const { error } = await _supabase
+            .from('bom')
+            .delete()
+            .eq('ref', ref)
+            .eq('peca', peca); // <--- Aqui usamos a coluna 'peca' que existe no banco
+
+        if (error) throw error;
+
+        // Atualiza a memória local e a tela
+        bom = bom.filter(item => !(item.ref === ref && item.peca === peca));
+renderBOM();
+        
+        atualizarSubSelects();
+        mostrarAviso("🗑️ Peça removida com sucesso!");
+        
+    } catch (err) {
+        console.error("Erro ao remover:", err);
+        alert("Erro ao excluir do banco: " + err.message);
+    }
+}
+
+async function produzir() {
+    let r = document.getElementById('prodRef').value;
+    let q = Number(document.getElementById('prodQtd').value);
+    if (q <= 0) return;
+
+    let est = bom.filter(b => b.ref === r);
+    if (est.length === 0) return alert("Esta referência não tem peças cadastradas na BOM!");
+
+    for (let e of est) {
+        let p = pecas.find(x => x.cod.toString().trim() === e.peca.toString().trim());
+        if (!p) return alert(`Peça ${e.peca} não encontrada!`);
+        if (p.qtd < (e.qtd * q)) {
+            return alert(`Estoque insuficiente de ${p.nome}.`);
+        }
+    }
+
+    for (let e of est) {
+        let p = pecas.find(x => x.cod.toString().trim() === e.peca.toString().trim());
+        p.qtd -= (e.qtd * q);
+        await _supabase.from('pecas').update({ qtd: p.qtd }).match({ ref: p.ref, cod: p.cod });
+    }
+
+    // --- CORREÇÃO DA DATA AQUI ---
+    const hojeLocal = new Date();
+    const dataISO_Local = hojeLocal.getFullYear() + '-' + 
+                         String(hojeLocal.getMonth() + 1).padStart(2, '0') + '-' + 
+                         String(hojeLocal.getDate()).padStart(2, '0');
+
+    const regProd = { 
+        tipo: 'Producao', 
+        ref: r, 
+        peca: 'PRODUÇÃO KIT FINAL', 
+        qtd: q, 
+        data: agoraLocalISO(), 
+        dataISO: dataISO_Local // Grava a data pura do seu computador
+    };
+    
+    hist.unshift(regProd);
+    await _supabase.from('hist').insert([regProd]);
+    
+    salvarSistema();
+    mostrarAviso(`✅ Produção de ${q} kits concluída!`);
+}
+
+function renderDashboard() {
+    // CORREÇÃO: Declarar a variável 'hoje' logo no início
+    const hoje = new Date();
+    
+    // Formato YYYY-MM-DD local para comparação
+    const hojeString = hoje.getFullYear() + '-' + 
+                       String(hoje.getMonth() + 1).padStart(2, '0') + '-' + 
+                       String(hoje.getDate()).padStart(2, '0');
+
+    // ... resto do seu código da função renderDashboard ...
+    // 0. NOVO: LÓGICA DO BANNER DE ALERTA VISUAL
+    const critListGeral = pecas.filter(p => p.qtd <= (window.CRITICO_PADRAO || 100));
+    const divAlerta = document.getElementById('alertaEstoque');
+    const listaAlerta = document.getElementById('alertaLista');
+
+    if (divAlerta && listaAlerta) {
+        if (critListGeral.length > 0) {
+            divAlerta.style.display = 'block';
+            // Pega o nome das 3 primeiras peças para o resumo
+            const resumo = critListGeral.slice(0, 3).map(p => p.nome).join(', ');
+            listaAlerta.innerHTML = `Itens críticos: <b>${resumo}${critListGeral.length > 3 ? ' e mais ' + (critListGeral.length - 3) : ''}</b>. Verifique a aba de Estoque.`;
+        } else {
+            divAlerta.style.display = 'none';
+        }
+    }
+
+    // 1. Soma o total produzido hoje para o Card superior
+    let pHojeTotal = hist.filter(h => {
+        if (h.tipo !== 'Producao') return false;
+        const dataH = h.dataISO || (h.data ? h.data.split('T')[0] : "");
+        return dataH === hojeString;
+    }).reduce((s, h) => s + Number(h.qtd), 0);
+
+    // 2. Atualiza os cards superiores (Refs, BOM Incompleta e Produção)
+    let refsSemBOM = refs.filter(r => !bom.some(b => b.ref === r.cod));
+    let totalIncompletas = refsSemBOM.length;
+
+    document.getElementById('dashCards').innerHTML = `
+        <div class="dash-card">
+            <h4>📦 Total Refs</h4>
+            <div class="dash-number">${fNum(refs.length)}</div>
+        </div>
+        <div class="dash-card" style="${totalIncompletas > 0 ? 'border: 2px solid #f1c40f; background: #fffdf0;' : ''}">
+            <h4>⚠️ BOM Incompleta</h4>
+            <div class="dash-number" style="${totalIncompletas > 0 ? 'color: #d97706;' : 'color: #059669;'}">
+                ${totalIncompletas}
+            </div>
+            <small>${totalIncompletas > 0 ? 'Refs sem estrutura' : 'Tudo configurado'}</small>
+        </div>
+        <div class="dash-card">
+            <h4>🏭 Produção Hoje</h4>
+            <div class="dash-number">${fNum(pHojeTotal)}</div>
+        </div>
+    `;
+    
+    // 3. Detalhamento da Produção (Ex: Ref. 45 : 100 pçs)
+    const containerProd = document.getElementById('dashProducao');
+    if (containerProd) {
+        const listaHoje = hist.filter(h => {
+            const dataH = h.dataISO || (h.data ? h.data.split('T')[0] : "");
+            return h.tipo === 'Producao' && dataH === hojeString;
+        });
+
+        containerProd.innerHTML = listaHoje.length > 0 
+            ? listaHoje.map(h => `<div class="dash-item">🏭 Ref. ${h.ref} : <b>${fNum(h.qtd)} pçs</b></div>`).join('')
+            : '<div class="dash-item">Nenhuma produção hoje</div>';
+    }
+    
+    // 4. Lista Lateral de Estoque Crítico
+    document.getElementById('dashCritico').innerHTML = critListGeral.length > 0
+        ? critListGeral.map(p => `
+            <div class="dash-item" style="background: #ffeded; border-left: 4px solid #ff4d4d; padding: 8px; margin-bottom: 5px; color: #b91c1c; font-weight: bold;">
+                ⚠️ ${p.nome}: ${fNum(p.qtd)} pçs
+            </div>`).join('')
+        : '<div class="dash-item" style="color: #059669; font-weight: bold;">✅ Tudo OK</div>';
+
+    // 5. Últimas Atividades (Histórico resumido com cores)
+    const dashAtiv = document.getElementById('dashAtividade');
+    if (dashAtiv) {
+        dashAtiv.innerHTML = hist.slice(0, 25).map(h => {
+            // Define a classe de cor baseada no tipo para o histórico
+            let estiloCor = '';
+            
+            // Se for ENTRADA, fica verde. Se for Producao, fica no tom padrão ou avermelhado
+            if (h.tipo === 'ENTRADA') {
+                estiloCor = 'background: #d4f7d4; border-left: 4px solid #28a745;';
+            } else if (h.tipo === 'Producao' || h.tipo === 'PRODUÇÃO') {
+                estiloCor = 'background: #fce4ec; border-left: 4px solid #e91e63;';
+            } else {
+                estiloCor = 'background: #f9f9f9; border-left: 4px solid #ccc;';
+            }
+
+            return `
+                <div class="dash-item" style="${estiloCor} padding: 8px; margin-bottom: 5px; border-radius: 4px;">
+                    <b>${h.tipo}</b>: ${h.ref} (${fNum(h.qtd)} pçs)
+                   <br><small style="color: #666;">${formatarData(h.data)}</small>
+                </div>`;
+        }).join('');
+    }
+}
+
+
+function renderHistorico() {
+    const tbody = document.getElementById('historico');
+    if (!tbody) return;
+
+    const historicoOrdenado = [...hist].sort((a, b) => new Date(b.data) - new Date(a.data));
+
+    tbody.innerHTML = historicoOrdenado.map(h => {
+        let classeLinha = '';
+        let tipoOriginal = h.tipo || '---';
+
+        let tipoNormalizado = String(h.tipo || '')
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .toUpperCase();
+
+        let tipoExibicao = tipoOriginal;
+
+        if (tipoNormalizado === 'ENTRADA') {
+            classeLinha = 'linha-entrada';
+            tipoExibicao = 'ENTRADA';
+        } else if (tipoNormalizado === 'PRODUCAO') {
+            classeLinha = 'linha-producao';
+            tipoExibicao = 'PRODUÇÃO';
+        } else if (tipoNormalizado === 'AJUSTE') {
+            classeLinha = 'linha-ajuste';
+            tipoExibicao = 'AJUSTE';
+        }
+
+        let refLimpa = h.ref;
+        if (!h.ref || h.ref === 'p.ref' || h.ref === 'null' || h.ref === 'undefined') {
+            refLimpa = '---';
+        }
+
+        let qtdFormatada = Number(h.qtd || 0).toLocaleString('pt-BR');
+
+        return `
+            <tr class="${classeLinha}">
+                <td><input type="checkbox" class="checkHist" value="${h.id}"></td>
+                <td>${tipoExibicao}</td>
+                <td>${refLimpa}</td>
+                <td>${h.peca || h.item || '---'}</td>
+                <td style="font-weight:bold;">${qtdFormatada}</td>
+                <td>${formatarData(h.data)}</td>
+            </tr>
+        `;
+    }).join('');
+}
+
+function renderSelects(){
+    const sels = ['pecaRef', 'bomRef', 'prodRef', 'entRef', 'pecaRefImport'];
+    const refsOrdenadas = [...refs].sort((a, b) => 
+        String(a.cod).localeCompare(String(b.cod), undefined, {numeric: true})
+    );
+
+    sels.forEach(id => {
+        let s = document.getElementById(id); 
+        if(!s) return;
+        let val = s.value;
+        s.innerHTML = refsOrdenadas.map(r => 
+            `<option value="${r.cod}">${r.cod} - ${r.nome}</option>`
+        ).join('');
+        if(val) s.value = val;
+    });
+
+    // Chama a atualização dos sub-selects (Peças)
+    atualizarSubSelects(); 
+}
+
+function atualizarSubSelects() {
+    const refsParaAtualizar = [
+        { refSel: 'bomRef', pecaSel: 'bomPeca', lista: 'bomLista' },
+        { refSel: 'entRef', pecaSel: 'entPeca', lista: null } // Adicionamos a aba de Entrada
+    ];
+
+    refsParaAtualizar.forEach(obj => {
+        const refEl = document.getElementById(obj.refSel);
+        const pecaEl = document.getElementById(obj.pecaSel);
+        if (!refEl || !pecaEl) return;
+
+        const refSelecionada = String(refEl.value);
+        const pecasFiltradas = pecas.filter(p => p.ref && String(p.ref).split('/').includes(refSelecionada));
+        
+        pecaEl.innerHTML = '<option value="">Selecione uma peça</option>';
+        pecasFiltradas.forEach(p => {
+            const opt = document.createElement('option');
+            opt.value = p.cod;
+            opt.textContent = `${p.cod} - ${p.nome}`;
+            pecaEl.appendChild(opt);
+        });
+    });
+}
+
+
+function salvarSistema() {
+    try {
+        renderDashboard(); 
+        renderSelects(); 
+        renderEstoque(); 
+        renderBOM(); 
+        renderHistorico();
+    } catch (e) {
+        console.error("Erro no salvarSistema:", e);
+    }
+}
+
+// 1. Função global e protegida
 
 function openTab(id, btn){
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
-    btn.classList.add('active');
+
+    const tab = document.getElementById(id);
+    if(tab) tab.classList.add('active');
+    if(btn) btn.classList.add('active');
+
+    // ESTA É A LINHA QUE ESTAVA FALTANDO:
+    // Sempre que abrir a aba 'bom', mandamos o sistema desenhar a tabela com os botões
+    if(id === 'bom') {
+        renderBOM();
+    }
 }
 
-/* FUNÇÕES DE CADASTRO E MOVIMENTAÇÃO */
-
-/* COLOQUE ESTA FUNÇÃO FORA DE OUTRAS FUNÇÕES */
-async function apagarHistoricoSelecionado() {
-    const selecionados = document.querySelectorAll('.hist-check:checked');
-    
-    if (selecionados.length === 0) {
-        return alert("Selecione ao menos um item para apagar!");
+function filtrarEstoque() {
+    let f = document.getElementById("inputBusca").value.toUpperCase();
+    let blocos = document.getElementById("listaRefs").children;
+    for (let b of blocos) {
+        b.style.display = b.innerText.toUpperCase().includes(f) ? "" : "none";
     }
+}
 
-    if (confirm(`Deseja apagar ${selecionados.length} registros?`)) {
-        // Criamos uma lista dos índices marcados
-        const indices = Array.from(selecionados).map(cb => parseInt(cb.getAttribute('data-index')));
+async function apagarSelecionados() {
+    try {
+        const selecionados = document.querySelectorAll('.checkHist:checked');
         
-        // Ordenamos do maior para o menor para não bagunçar a ordem ao remover
-        indices.sort((a, b) => b - a);
-
-        for (let i of indices) {
-            const h = hist[i];
-            // Apaga no Supabase
-            await _supabase.from('hist').delete().match({ 
-                data: h.data, 
-                ref: h.ref, 
-                tipo: h.tipo 
-            });
-            // Remove localmente
-            hist.splice(i, 1);
+        if (selecionados.length === 0) {
+            alert("Selecione ao menos um registro para apagar.");
+            return;
         }
 
-        salvarSistema(); // Esta função já chama o renderHistorico()
-        mostrarAviso("🗑️ Histórico atualizado!");
+        if (!confirm(`Deseja apagar os ${selecionados.length} registros?`)) return;
+
+        // O filtro .filter(id => id !== "undefined") evita o erro que você recebeu
+        const idsParaApagar = Array.from(selecionados)
+            .map(cb => cb.value)
+            .filter(id => id && id !== "undefined" && id !== "null");
+
+        if (idsParaApagar.length === 0) {
+            alert("Erro: Não foi possível encontrar os IDs dos registros selecionados.");
+            return;
+        }
+
+        const { error } = await _supabase
+            .from('hist')
+            .delete()
+            .in('id', idsParaApagar);
+
+        if (error) throw error;
+
+        await carregarDadosIniciais();
+        renderHistorico();
+        
+        if (typeof mostrarAviso === 'function') {
+            mostrarAviso("✅ Registros apagados!");
+        }
+
+    } catch (err) {
+        console.error("Erro ao apagar:", err);
+        alert("Erro ao apagar: " + err.message);
     }
 }
 
 
-async function editarQtdBOM(ref, codPeca, qtdAtual) {
-    let novaQtd = prompt(`Nova quantidade para a peça ${codPeca}:`, qtdAtual);
+function selecionarTodosHist() {
+    const checkboxes = document.querySelectorAll('.checkHist');
+    // Verifica se todos já estão marcados para saber se deve marcar ou desmarcar
+    const todosMarcados = Array.from(checkboxes).every(cb => cb.checked);
     
-    if (novaQtd !== null && novaQtd !== "" && !isNaN(novaQtd) && novaQtd > 0) {
-        let item = bom.find(i => i.ref === ref && i.peca === codPeca);
-        if (item) {
-            item.qtd = Number(novaQtd);
-            salvarSistema(); // Salva local e renderiza
+    checkboxes.forEach(cb => {
+        cb.checked = !todosMarcados;
+    });
+}
+
+async function excluirReferenciaCompleta(cod) {
+    const confirmacao = confirm(`⚠️ ATENÇÃO: Isso excluirá a Referência ${cod}, todas as suas peças e a estrutura BOM permanentemente. Confirma?`);
+    
+    if (confirmacao) {
+        try {
+            // 1. Deletar as peças vinculadas no Supabase
+            await _supabase.from('pecas').delete().match({ ref: cod });
             
-            // Atualiza no Supabase
-            await _supabase.from('bom')
-                .update({ qtd: item.qtd })
-                .match({ ref: ref, peca: codPeca });
+            // 2. Deletar a estrutura BOM vinculada no Supabase
+            await _supabase.from('bom').delete().match({ ref: cod });
+            
+            // 3. Deletar a Referência principal no Supabase
+            const { error } = await _supabase.from('refs').delete().match({ cod: cod });
 
-            mostrarAviso("📝 Quantidade atualizada na Nuvem!");
+            if (error) throw error;
+
+            // 4. Limpar memória local
+            refs = refs.filter(r => r.cod !== cod);
+            pecas = pecas.filter(p => p.ref !== cod);
+            bom = bom.filter(b => b.ref !== cod);
+
+            // 5. Atualizar interface
+            salvarSistema();
+            mostrarAviso("🗑️ Referência e itens excluídos!");
+        } catch (err) {
+            console.error(err);
+            alert("Erro ao excluir: verifique a conexão com o banco de dados.");
         }
     }
 }
 
-async function addRef(){
-    let c = document.getElementById('refCod').value, n = document.getElementById('refNome').value;
-    if(c && n) { 
-        const novaRef = {cod:c, nome:n};
-        refs.push(novaRef); salvarSistema(); 
-        await _supabase.from('refs').insert([novaRef]); 
-        mostrarAviso(`✅ Ref ${c} cadastrada!`);
-        document.getElementById('refCod').value = ''; document.getElementById('refNome').value = '';
-    }
-}
-
-async function addPeca(){
-    let r = document.getElementById('pecaRef').value, c = document.getElementById('pCod').value, n = document.getElementById('pNome').value, q = Number(document.getElementById('pQtd').value);
-    if(r && c && n) { 
-        const novaPeca = {ref:r, cod:c, nome:n, qtd:q};
-        pecas.push(novaPeca); salvarSistema(); 
-        await _supabase.from('pecas').insert([novaPeca]); 
-        mostrarAviso(`✅ Peça ${n} salva!`);
-        document.getElementById('pCod').value = ''; document.getElementById('pNome').value = ''; document.getElementById('pQtd').value = '';
-    }
-}
-
-async function addBOM(){
-    const resRef = document.getElementById('bomRef'), resPeca = document.getElementById('bomPeca'), resQtd = document.getElementById('bomQtd');
-    if(resRef && resPeca && resQtd.value > 0) { 
-        const novoItemBOM = {ref: resRef.value, peca: resPeca.value, qtd: Number(resQtd.value)};
-        bom.push(novoItemBOM); salvarSistema(); 
-        await _supabase.from('bom').insert([novoItemBOM]);
-        mostrarAviso("✅ Estrutura sincronizada!");
-        resQtd.value = ''; renderSistema();
-    }
-}
-
-async function entradaMaterial(){
-    let r = document.getElementById('entRef').value, pc = document.getElementById('entPeca').value, q = Number(document.getElementById('entQtd').value);
-    let p = pecas.find(x => x.ref === r && x.cod === pc);
-    if(p && q > 0) {
-        const agora = new Date();
-        const novoHist = { tipo: 'Entrada', ref: r, peca: p.nome, qtd: q, data: agora.toISOString(), dataISO: agora.toLocaleDateString('en-CA') };
-        p.qtd += q; hist.unshift(novoHist); salvarSistema();
-        await _supabase.from('pecas').update({ qtd: p.qtd }).match({ ref: r, cod: pc });
-        await _supabase.from('hist').insert([novoHist]);
-        mostrarAviso(`📥 Entrada de ${q} un. salva!`);
-        document.getElementById('entQtd').value = '';
-    }
-}
-
-async function produzir(){
-    let r = document.getElementById('prodRef').value;
-    let q = Number(document.getElementById('prodQtd').value);
+function exportarRefEspecifica(codRef, nomeRef) {
+    const pecasDaRef = pecas.filter(p => String(p.ref) === String(codRef));
     
-    if(q <= 0 || isNaN(q)) return alert("Informe uma quantidade válida.");
-    
-    // 1. Pega a estrutura exata dessa referência
-    let est = bom.filter(b => b.ref === r);
-    if(est.length === 0) return alert("Referência sem estrutura (BOM)!");
+    // Conteúdo HTML pronto para ser aberto como Excel
+    let htmlContent = `
+    <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+    <head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"></head>
+    <body>
+    <table border="1">
+        <tr>
+            <th colspan="4" style="background-color:#ccc; font-weight:bold;">REFERÊNCIA: ${codRef} - ${nomeRef}</th>
+        </tr>
+        <tr>
+            <th style="font-weight:bold; background-color:#e0e0e0;">Código</th>
+            <th style="font-weight:bold; background-color:#e0e0e0;">Descrição</th>
+            <th style="font-weight:bold; background-color:#e0e0e0;">Estoque Total</th>
+            <th style="font-weight:bold; background-color:#e0e0e0;">Diferença</th>
+        </tr>`;
 
-    // 2. Validação de Estoque (Verifica antes de descontar qualquer coisa)
-    for(let e of est){
-        let p = pecas.find(x => x.ref === r && x.cod === e.peca);
-        let gastoNecessario = Number(e.qtd) * q; 
-        
-        if(!p || p.qtd < (gastoNecessario - 0.0001)) {
-            return alert(`Estoque insuficiente! Peça: ${p ? p.nome : e.peca}. Necessário: ${gastoNecessario}, Disponível: ${p ? p.qtd : 0}`);
-        }
-    }
-
-    // 3. Processamento (Só chega aqui se houver estoque para TUDO)
-    for(let e of est){
-        let p = pecas.find(x => x.ref === r && x.cod === e.peca);
-        let totalADescontar = Number(e.qtd) * q;
-        
-        // Atualiza localmente
-        p.qtd -= totalADescontar;
-        
-        // Atualiza no Supabase (apenas uma vez por peça)
-        await _supabase.from('pecas')
-            .update({ qtd: p.qtd })
-            .match({ ref: r, cod: e.peca });
-    }
-
-    // 4. Registro de Histórico
-    const agora = new Date();
-    const regProd = {
-        tipo: 'Producao', 
-        ref: r, 
-        peca: 'PRODUÇÃO', 
-        qtd: q, 
-        data: agora.toISOString(),
-        dataISO: agora.toLocaleDateString('en-CA')
-    };
-    
-    hist.unshift(regProd);
-    salvarSistema(); // Isso vai renderizar a tela com os novos valores
-    
-    await _supabase.from('hist').insert([regProd]);
-
-    mostrarAviso(`🏭 Produção de ${fNum(q)} concluída! Estoque atualizado.`);
-    document.getElementById('prodQtd').value = '';
-}
-
-/* EXCLUSÕES */
-async function excluirReferenciaCompleta(codigoRef) {
-    if(confirm(`⚠️ Excluir Ref ${codigoRef} e tudo nela?`)) {
-        refs = refs.filter(r => r.cod !== codigoRef);
-        pecas = pecas.filter(p => p.ref !== codigoRef);
-        bom = bom.filter(b => b.ref !== codigoRef);
-        salvarSistema();
-        await _supabase.from('refs').delete().match({ cod: codigoRef });
-        await _supabase.from('pecas').delete().match({ ref: codigoRef });
-        await _supabase.from('bom').delete().match({ ref: codigoRef });
-        mostrarAviso("🗑️ Excluído!");
-    }
-}
-
-async function excluirItemBOM(ref, peca) {
-    if(confirm('Remover esta peça da estrutura (BOM)?')) {
-        bom = bom.filter(b => !(b.ref === ref && b.peca === peca));
-        salvarSistema();
-        await _supabase.from('bom').delete().match({ ref: ref, peca: peca });
-        mostrarAviso("Item removido da estrutura!");
-    }
-}    
-
-async function excluirPeca(ref, cod){ 
-    if(confirm('Excluir peça?')){ 
-        pecas = pecas.filter(p => !(p.ref === ref && p.cod === cod)); salvarSistema(); 
-        await _supabase.from('pecas').delete().match({ ref: ref, cod: cod }); 
-    } 
-}
-
-/* RENDERS ADICIONAIS */
-function renderSelects(){
-    let sels = [document.getElementById('pecaRef'), document.getElementById('bomRef'), document.getElementById('prodRef'), document.getElementById('entRef')];
-    refs.sort((a, b) => Number(a.cod) - Number(b.cod));
-    sels.forEach(s => {
-        if(!s) return;
-        let v = s.value; s.innerHTML = '';
-        refs.forEach(r => s.innerHTML += `<option value="${r.cod}">${r.cod} - ${r.nome}</option>`);
-        s.value = v;
+    pecasDaRef.forEach(p => {
+        htmlContent += `
+        <tr>
+            <td>${p.cod}</td>
+            <td>${p.nome || 'Sem Descrição'}</td>
+            <td>${p.qtd || 0}</td>
+            <td></td>
+        </tr>`;
     });
-    atualizarSelects();
-}
 
-function atualizarSelects(){
-    const selBomPeca = document.getElementById('bomPeca'), selEntPeca = document.getElementById('entPeca');
-    const bRef = document.getElementById('bomRef'), eRef = document.getElementById('entRef');
-    if(selBomPeca && bRef) {
-        selBomPeca.innerHTML = '';
-        pecas.filter(p => p.ref === bRef.value).forEach(p => selBomPeca.innerHTML += `<option value="${p.cod}">${p.nome}</option>`);
-    }
-    if(selEntPeca && eRef) {
-        selEntPeca.innerHTML = '';
-        pecas.filter(p => p.ref === eRef.value).forEach(p => selEntPeca.innerHTML += `<option value="${p.cod}">${p.nome}</option>`);
-    }
-}
+    htmlContent += `</table></body></html>`;
 
-function renderBOM(){
-    const lista = document.getElementById('bomLista');
-    const refS = document.getElementById('bomRef');
-    if(!lista || !refS) return;
-    lista.innerHTML = '';
-    
-    bom.filter(b => b.ref === refS.value).forEach(b => {
-        let p = pecas.find(x => x.cod === b.peca && x.ref === b.ref);
-        let tr = document.createElement('tr');
-        tr.innerHTML = `
-            <td>${b.ref}</td>
-            <td>${b.peca}</td>
-            <td>${p ? p.nome : '?'}</td>
-            <td>${b.qtd}</td>
-            <td style="display: flex; gap: 5px; justify-content: center;">
-                <button onclick="editarQtdBOM('${b.ref}', '${b.peca}', ${b.qtd})" 
-                        style="background:#ffc107; color:#000; padding:2px 8px;" title="Editar">
-                    ✏️
-                </button>
-                <button onclick="excluirItemBOM('${b.ref}', '${b.peca}')" 
-                        style="background:#dc3545; padding:2px 8px;" title="Excluir">
-                    X
-                </button>
-            </td>`;
-        lista.appendChild(tr);
-    });
-}
-
-function renderHistorico(){
-    const corpo = document.getElementById('historico');
-    if(!corpo) return;
-    corpo.innerHTML = '';
-    hist.forEach((h, i) => {
-        let tr = document.createElement('tr');
-        tr.className = h.tipo === 'Entrada' ? 'linha-entrada' : 'linha-producao';
-        tr.innerHTML = `
-            <td><input type="checkbox" class="hist-check" data-index="${i}"></td>
-            <td><strong>${h.tipo}</strong></td>
-            <td>${h.ref}</td>
-            <td>${h.peca}</td>
-            <td>${fNum(h.qtd)}</td>
-            <td>${formatarData(h.data)}</td>
-        `;
-        corpo.appendChild(tr);
-    });
-}
-
-function exportarRefEspecifica(codigoRef, nomeRef) {
-    const lista = pecas.filter(p => p.ref === codigoRef);
-    let html = `<table border="1"><tr><th colspan="4">CONTAGEM - ${codigoRef}</th></tr>`;
-    lista.forEach(p => html += `<tr><td>${p.cod}</td><td>${p.nome}</td><td>${Math.floor(p.qtd)}</td><td></td></tr>`);
-    const blob = new Blob(['\ufeff' + html + '</table>'], { type: 'application/vnd.ms-excel' });
+    // Download do arquivo
+    const blob = new Blob([htmlContent], { type: 'application/vnd.ms-excel;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = `Inventario_${codigoRef}.xls`;
+    link.href = url;
+    link.download = `Inventario_${codRef}.xls`;
     link.click();
 }
-    function filtrarEstoque() {
-    const input = document.getElementById("inputBusca");
-    const filter = input.value.toUpperCase();
-    const lista = document.getElementById("listaRefs");
-    
-    // Pega cada bloco (div) de Referência
-    const blocos = lista.children; 
 
-    for (let i = 0; i < blocos.length; i++) {
-        const bloco = blocos[i];
-        const texto = bloco.textContent || bloco.innerText;
+async function salvarPecaNoSupabase(peca) {
+    const { data, error } = await _supabase
+        .from('pecas') // Nome exato da sua tabela no painel
+        .insert([peca]);
         
-        if (texto.toUpperCase().indexOf(filter) > -1) {
-            bloco.style.display = ""; // Mostra o bloco se encontrar o texto
-        } else {
-            bloco.style.display = "none"; // Esconde o bloco todo
+    if (error) {
+        console.error("Erro ao salvar no Supabase:", error);
+    } else {
+        console.log("Peça salva com sucesso!");
+    }
+}
+
+async function carregarDadosIniciais() {
+    try {
+        const [r, p, b, h] = await Promise.all([
+            _supabase.from('refs').select('*'),
+            _supabase.from('pecas').select('*'),
+            _supabase.from('bom').select('*'),
+            _supabase.from('hist').select('*').order('data', { ascending: false }).limit(100)
+        ]);
+
+        if(r.data) refs = r.data; 
+        if(p.data) pecas = p.data; 
+        if(b.data) bom = b.data; 
+        if(h.data) hist = h.data;
+
+
+        // --- AS LINHAS ABAIXO SÃO AS QUE ESTAVAM FALTANDO ---
+
+        renderEstoque();   // Desenha a aba estoque
+
+        renderBOM();       // DESENHA A ABA BOM COM OS BOTÕES
+
+        renderHistorico(); // Desenha o histórico
+
+
+        salvarSistema();
+    } catch (err) {
+        console.error("Erro ao sincronizar dados:", err);
+    }
+}
+
+async function carregarDadosCompletos() {
+    // 1. Busca todas as peças
+    const { data: pecas, error: err1 } = await _supabase.from('pecas').select('*');
+    // 2. Busca todos os vínculos da tabela BOM
+    const { data: boms, error: err2 } = await _supabase.from('bom').select('*');
+
+    if (err1 || err2) {
+        console.error("Erro ao carregar do Supabase", err1 || err2);
+        return;
+    }
+
+    // 3. Monta o estoque com as referências unidas
+    estoque = pecas.map(peca => {
+        // Filtra os vínculos da BOM que pertencem a esta peça
+        const refsDaPeca = boms
+            .filter(item => item.peca === peca.cod)
+            .map(item => item.ref);
+            
+        // Retorna o objeto da peça com um novo campo 'refs_list'
+        return { 
+            ...peca, 
+            refs_list: refsDaPeca.join(', ') // Transforma ["45", "90"] em "45, 90"
+        };
+    });
+
+    // 4. Atualiza o ecrã
+    renderSistema();
+}
+
+async function executarProcessamento() {
+    const codOrigem = document.getElementById('procOrigem').value.trim();
+    const codDestino = document.getElementById('procDestino').value.trim();
+    const qtd = parseFloat(document.getElementById('procQtd').value);
+    const tipo = document.getElementById('procTipo').value;
+    if (!codOrigem || !codDestino || isNaN(qtd)) return mostrarAviso("Preencha todos os campos!");
+    await realizarTransformacao(codOrigem, codDestino, qtd, tipo);
+}
+
+async function realizarTransformacao(origem, destino, qtd, tipo) {
+    const pBruta = pecas.find(p => p.cod.toString().trim() === origem.trim());
+    const pAcabada = pecas.find(p => p.cod.toString().trim() === destino.trim());
+
+    if (!pBruta) return mostrarAviso("Bruta não encontrada!");
+    if (!pAcabada) return mostrarAviso("Acabada não encontrada!");
+    if (pBruta.qtd < qtd) return mostrarAviso("Estoque insuficiente!");
+
+    pBruta.qtd -= qtd;
+    pAcabada.qtd += qtd;
+
+    try {
+        await _supabase.from('pecas')
+            .update({ qtd: pBruta.qtd })
+            .eq('cod', pBruta.cod)
+            .eq('ref', pBruta.ref);
+
+        await _supabase.from('pecas')
+            .update({ qtd: pAcabada.qtd })
+            .eq('cod', pAcabada.cod)
+            .eq('ref', pAcabada.ref);
+
+        await _supabase.from('hist').insert([{
+            data: agoraLocalISO(),
+            tipo: 'PRODUÇÃO',
+            ref: pAcabada.ref,
+            peca: pAcabada.nome,
+            qtd: qtd,
+            detalhe: `${tipo}: de ${origem} para ${destino}`
+        }]);
+
+        await carregarDadosIniciais();
+        salvarSistema();
+
+        document.getElementById('procQtd').value = "";
+        mostrarAviso("✅ Concluído!");
+    } catch (err) {
+        console.error(err);
+        alert("Erro ao registrar produção.");
+    }
+}
+
+async function registrarEntrada() {
+    const entRefEl = document.getElementById('entRef');
+    const entPecaEl = document.getElementById('entPeca');
+    const entQtdEl = document.getElementById('entQtd');
+
+    const ref = String(entRefEl.value || '').trim();
+    const codPeca = String(entPecaEl.value || '').trim();
+    const qtd = Number(entQtdEl.value);
+
+    if (!ref || !codPeca || isNaN(qtd) || qtd <= 0) {
+        alert("Selecione a referência, a peça e informe uma quantidade válida!");
+        return;
+    }
+
+    const peca = pecas.find(p =>
+        String(p.ref || '').trim() === ref &&
+        String(p.cod || '').trim() === codPeca
+    );
+
+    if (!peca) {
+        alert("Peça não encontrada para a referência selecionada!");
+        return;
+    }
+
+    const novaQtd = (Number(peca.qtd) || 0) + qtd;
+
+    try {
+        const { error } = await _supabase
+            .from('pecas')
+            .update({ qtd: novaQtd })
+            .eq('ref', ref)
+            .eq('cod', codPeca);
+
+        if (error) throw error;
+
+        peca.qtd = novaQtd;
+
+        const novoHist = {
+            tipo: 'ENTRADA',
+            ref: ref,
+            peca: peca.nome || codPeca,
+            qtd: qtd,
+            data: agoraLocalISO ? agoraLocalISO() : new Date().toISOString()
+        };
+
+        const { error: histError } = await _supabase
+            .from('hist')
+            .insert([novoHist]);
+
+        if (histError) throw histError;
+
+        hist.unshift(novoHist);
+
+        renderSistema();
+        atualizarSubSelects?.();
+
+        entQtdEl.value = '';
+
+        mostrarAviso("✅ Entrada registrada com sucesso!");
+    } catch (err) {
+        console.error("Erro ao registrar entrada:", err);
+        alert("Erro ao registrar entrada: " + err.message);
+    }
+}
+
+async function excluirPeca(id) { // Agora passamos o ID diretamente
+    if (!confirm("Tem certeza que deseja excluir esta peça?")) return;
+
+    try {
+        const { error } = await _supabase
+            .from('pecas')
+            .delete()
+            .eq('id', id); // O Supabase adora deletar pelo ID
+
+        if (error) throw error;
+
+        await carregarDadosIniciais(); // Recarrega tudo
+        mostrarAviso("🗑️ Peça excluída!");
+    } catch (err) {
+        alert("Erro ao excluir: " + err.message);
+    }
+}
+// 4. Inicialização Segura
+window.onload = async () => {
+    try {
+        const [r, p, b, h] = await Promise.all([
+            _supabase.from('refs').select('*'),
+            _supabase.from('pecas').select('*'),
+            _supabase.from('bom').select('*'),
+            _supabase.from('hist').select('*').order('data', { ascending: false }).limit(100)
+        ]);
+
+        if (r.data) refs = r.data;
+        if (p.data) pecas = p.data;
+        if (b.data) bom = b.data;
+        if (h.data) hist = h.data;
+
+        // O SEGREDO: Vincular nomes às peças da BOM logo no carregamento
+        bom = bom.map(item => {
+            const pecaInfo = pecas.find(p => String(p.cod) === String(item.peca));
+            return {
+                ...item,
+                nome: pecaInfo ? pecaInfo.nome : '---' // Tenta buscar o nome
+            };
+        });
+
+        renderSistema();
+        renderSelects();
+        atualizarSubSelects(); // Isso vai redesenhar a tabela BOM corretamente
+        
+        console.log("Sistema inicializado e BOM sincronizada!");
+    } catch (err) {
+        console.error("Erro na inicialização:", err);
+    }
+};
+
+function handleQtdNavigation(event, input) {
+    const inputs = Array.from(document.querySelectorAll('.qtd-input'));
+    const index = inputs.indexOf(input);
+
+    // ENTER → salva e vai pra baixo
+    if (event.key === 'Enter') {
+        event.preventDefault();
+        input.blur();
+
+        if (inputs[index + 1]) {
+            inputs[index + 1].focus();
+            inputs[index + 1].select();
+        }
+    }
+
+    // TAB normal → próximo
+    if (event.key === 'Tab' && !event.shiftKey) {
+        event.preventDefault();
+
+        input.blur();
+
+        if (inputs[index + 1]) {
+            inputs[index + 1].focus();
+            inputs[index + 1].select();
+        }
+    }
+
+    // SHIFT + TAB → anterior
+    if (event.key === 'Tab' && event.shiftKey) {
+        event.preventDefault();
+
+        input.blur();
+
+        if (inputs[index - 1]) {
+            inputs[index - 1].focus();
+            inputs[index - 1].select();
         }
     }
 }
-function renderSistema(){ renderDashboard(); renderSelects(); renderEstoque(); renderBOM(); renderHistorico(); }
 
-/* INICIALIZAÇÃO */
-window.onload = async () => {
-    const { data: p } = await _supabase.from('pecas').select('*');
-    const { data: r } = await _supabase.from('refs').select('*');
-    const { data: b } = await _supabase.from('bom').select('*');
-    const { data: h } = await _supabase.from('hist').select('*').order('data', { ascending: false }).limit(100);
 
-    if (p) pecas = p; if (r) refs = r; if (b) bom = b; if (h) hist = h;
-    
-    renderSistema();
+// Adicione isto fora de qualquer função, pode ser logo após o window.onload
+document.getElementById('bomRef').addEventListener('change', function() {
+    console.log("Referência alterada, atualizando lista de peças...");
+    atualizarSubSelects();
+    renderBOM();
+});
 
-    document.getElementById('bomRef').addEventListener('change', () => { atualizarSelects(); renderBOM(); });
-    document.getElementById('entRef').addEventListener('change', atualizarSelects);
-};
+// Adicione isto no seu script
+document.getElementById('entRef').addEventListener('change', atualizarSubSelects);
 
-/* ATALHOS */
-window.addEventListener('keydown', function(event) {
-    if (event.altKey) {
-        const tabs = document.querySelectorAll('.tab-btn');
-        if (event.key === '1') tabs[0].click();
-        if (event.key === '2') tabs[1].click();
-        if (event.key === '3') tabs[2].click();
-        if (event.key === '4') tabs[3].click();
-    }
-    if (event.key === 'Enter') {
-        const f = document.activeElement;
-        if (f.id === 'refCod' || f.id === 'refNome') addRef();
-        else if (f.id === 'pCod' || f.id === 'pNome' || f.id === 'pQtd') addPeca();
-        else if (f.id === 'bomQtd') addBOM();
-        else if (f.id === 'entQtd') entradaMaterial();
-        else if (f.id === 'prodQtd') produzir();
+// Atalho Global de ENTER
+document.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') {
+        const activeId = document.activeElement.id;
+        
+        // --- ABA ENTRADA ---
+        if (['entQtd', 'entPeca', 'entRef'].includes(activeId)) {
+            e.preventDefault();
+            registrarEntrada();
+        }
+        
+        // --- ABA BOM (Estrutura) ---
+        // Certifique-se de que a função no seu código se chama adicionarItemBOM
+        if (['bomQtd', 'bomPeca', 'bomRef'].includes(activeId)) {
+            e.preventDefault();
+            addBOM(); 
+        }
+
+        // --- ABA PRODUÇÃO ---
+if (['prodQtd', 'prodRef'].includes(activeId)) {
+    e.preventDefault();
+    produzir();
+}
+        // --- ABA ESTOQUE (Ajuste Rápido) ---
+        // Se estiver num campo de input dentro da aba estoque
+        if (['ajusteInput'].includes(activeId)) {
+            e.preventDefault();
+            // A função ajusteRapido precisa do ID, então esse 
+            // atalho depende de onde o foco está.
+        }
     }
 });
+           
 </script>
 </body>
-
 </html>
-
-
-
