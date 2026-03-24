@@ -1,48 +1,72 @@
-# 🚀 Full Control S.A. - Gestão de Semi-Acabados
+# Full Control - Controle Interno de Estoque e Produção
 
-O **Full Control S.A.** é um sistema web leve e eficiente projetado para o controle de estoque e ordens de produção da **Elka Plásticos**. Ele permite gerenciar referências, componentes (BOM), entradas de materiais e o cálculo automático de capacidade produtiva.
+O **Full Control** é um sistema web desenvolvido para apoiar o controle interno de estoque, estrutura de produtos (BOM), entradas de materiais e ordens de produção no ambiente fabril da **Elka Plásticos**.
 
----
-
-## 🛠️ Funcionalidades Principais
-
-* **Dashboard em Tempo Real:** Visualização de estoque crítico, produção do dia e últimas atividades.
-* **Gestão de Estoque (BOM):** Controle detalhado de peças por referência com barras de progresso visual.
-* **Cálculo de Máximo Produtivo:** O sistema indica automaticamente quantas unidades de um produto podem ser fabricadas com o estoque atual.
-* **Importação via CSV:** Cadastro em massa de referências e peças através de planilhas Excel.
-* **Histórico Inteligente:** Registro rastreável de todas as entradas e produções com opção de exclusão seletiva.
-* **Sincronização na Nuvem:** Integração nativa com **Supabase** para persistência de dados em tempo real.
+O projeto nasceu da necessidade de organizar processos operacionais do dia a dia com mais clareza, agilidade e confiabilidade, reunindo em uma única interface o cadastro de referências, peças, consumo de materiais, movimentações de estoque e histórico das operações.
 
 ---
 
-## 💻 Tecnologias Utilizadas
+## Principais funcionalidades
 
-* **Frontend:** HTML5, CSS3 (Responsivo) e JavaScript (Vanilla).
-* **Backend/Banco de Dados:** [Supabase](https://supabase.com/) (PostgreSQL + Realtime).
-* **Iconografia:** Emojis e design focado em UX Industrial.
-
----
-
-## 🚀 Como Utilizar
-
-1.  **Cadastro:** Inicie cadastrando suas Referências e, em seguida, as Peças vinculadas a elas.
-2.  **Estrutura (BOM):** Na aba BOM, defina a "receita" de cada produto (quantas peças cada unidade consome).
-3.  **Movimentação:**
-    * Use a aba **Entrada** para abastecer o estoque de peças.
-    * Use a aba **Produção** para fabricar produtos (o sistema abaterá automaticamente os componentes do estoque).
-4.  **Exportação:** Gere inventários específicos para conferência física através do botão "CSV" na aba de Estoque.
+- Cadastro de **referências**
+- Cadastro de **peças** vinculadas às referências
+- Estruturação de produtos por **BOM**
+- Edição inline da quantidade utilizada por item na BOM
+- Registro de **entrada de materiais**
+- Registro de **produção**, com baixa automática dos componentes no estoque
+- Cálculo de **capacidade produtiva máxima** com base no saldo disponível
+- **Histórico de movimentações** com entradas, produção e ajustes
+- **Importação via CSV** para referências e peças
+- **Exportação de inventário** para conferência e controle
+- Interface web com acesso rápido pelo navegador
 
 ---
 
-## ⌨️ Atalhos de Teclado
+## Tecnologias utilizadas
 
-* `Alt + 1`: Dashboard
-* `Alt + 2`: Cadastro
-* `Alt + 3`: BOM
-* `Alt + 4`: Entrada
-* `Enter`: Confirma cadastros e movimentações rapidamente.
+- **HTML5**
+- **CSS3**
+- **JavaScript Vanilla**
+- **Supabase** para persistência de dados
+- **GitHub Pages** para publicação da interface
 
 ---
 
-## 📄 Licença
-Este projeto é de uso interno para a gestão da Elka Plásticos.
+## Fluxo de uso
+
+1. Cadastrar as **referências**
+2. Cadastrar as **peças**
+3. Definir a **estrutura BOM** de cada produto
+4. Registrar **entradas** para abastecimento do estoque
+5. Executar a **produção**, consumindo automaticamente os componentes
+6. Consultar o **histórico** e exportar informações quando necessário
+
+---
+
+## Atalhos disponíveis
+
+- `Alt + 1` — Dashboard
+- `Alt + 2` — Cadastro
+- `Alt + 3` — BOM
+- `Alt + 4` — Entrada
+- `Enter` — confirmação rápida de ações e lançamentos
+
+---
+
+## Objetivo do projeto
+
+Este sistema foi desenvolvido como uma solução prática para melhorar o controle operacional interno, reduzir falhas em movimentações de estoque e dar mais visibilidade ao processo produtivo.
+
+Além do uso aplicado no ambiente de trabalho, o projeto também representa uma experiência real de desenvolvimento, envolvendo interface web, lógica de negócio, manipulação de dados e integração com banco de dados em nuvem.
+
+---
+
+## Contexto
+
+O **Full Control** foi pensado para atender necessidades reais de rotina industrial, com foco em simplicidade de uso e evolução contínua conforme as demandas do processo.
+
+---
+
+## Licença
+
+Projeto desenvolvido para uso interno.
