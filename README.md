@@ -1,72 +1,53 @@
-# Full Control - Controle Interno de Estoque e Produção
+# 🚀 Full Control 2.0 - Gestão de Semi Acabados
 
-O **Full Control** é um sistema web desenvolvido para apoiar o controle interno de estoque, estrutura de produtos (BOM), entradas de materiais e ordens de produção no ambiente fabril da **Elka Plásticos**.
-
-O projeto nasceu da necessidade de organizar processos operacionais do dia a dia com mais clareza, agilidade e confiabilidade, reunindo em uma única interface o cadastro de referências, peças, consumo de materiais, movimentações de estoque e histórico das operações.
+> Sistema avançado de controle de estoque, estrutura de produtos (BOM) e gestão de produção para a **Elka Plásticos**.
 
 ---
 
-## Principais funcionalidades
+## 📝 Sobre o Projeto
+O **Full Control 2.0** é uma solução robusta para o controle de materiais semi-acabados. Diferente de sistemas de recados, esta versão foca no **balanço de massa**: ele entende que para produzir uma "Referência", é necessário consumir várias "Peças" do estoque, automatizando a baixa e o cálculo de disponibilidade.
 
-- Cadastro de **referências**
-- Cadastro de **peças** vinculadas às referências
-- Estruturação de produtos por **BOM**
-- Edição inline da quantidade utilizada por item na BOM
-- Registro de **entrada de materiais**
-- Registro de **produção**, com baixa automática dos componentes no estoque
-- Cálculo de **capacidade produtiva máxima** com base no saldo disponível
-- **Histórico de movimentações** com entradas, produção e ajustes
-- **Importação via CSV** para referências e peças
-- **Exportação de inventário** para conferência e controle
-- Interface web com acesso rápido pelo navegador
+O sistema utiliza **Supabase (PostgreSQL)** como banco de dados em tempo real, permitindo que múltiplos usuários gerenciem o inventário simultaneamente com persistência de dados segura.
 
----
+## 🛠️ Principais Funcionalidades
 
-## Tecnologias utilizadas
+### 📊 Dashboard Inteligente
+* **Visão Geral:** Cards com total de referências, produções do dia e alertas de estruturas (BOM) incompletas.
+* **Estoque Crítico:** Listagem automática de itens abaixo do nível de segurança.
+* **Linha do Tempo:** Histórico visual das últimas 25 atividades (Entradas, Saídas e Ajustes).
 
-- **HTML5**
-- **CSS3**
-- **JavaScript Vanilla**
-- **Supabase** para persistência de dados
-- **GitHub Pages** para publicação da interface
+### 🏗️ Gestão de Estrutura (BOM - Bill of Materials)
+* **Montagem de Kits:** Defina exatamente quantas peças de cada código compõem uma Referência final.
+* **Cálculo de Capacidade:** O sistema analisa o estoque atual e informa instantaneamente: *"Com o que temos hoje, podemos montar X unidades da Ref. 45"*.
 
----
+### 📦 Controle de Estoque e Processamento
+* **Entrada de Material:** Registro de chegada de novos lotes com atualização automática do saldo.
+* **Transformação (Processamento):** Módulo para registrar a passagem de peças brutas para acabadas (Tampografia, Pintura, Transfer).
+* **Ajuste Rápido:** Edição direta de estoque com registro automático no histórico para auditoria.
 
-## Fluxo de uso
+### 🏭 Produção e Simulação
+* **Baixa Automática:** Ao registrar a produção de uma referência, o sistema abate proporcionalmente todas as peças daquela estrutura no estoque.
+* **Simulador de Faltas:** Ferramenta que projeta uma produção futura e gera um relatório listando exatamente o que falta comprar ou produzir.
 
-1. Cadastrar as **referências**
-2. Cadastrar as **peças**
-3. Definir a **estrutura BOM** de cada produto
-4. Registrar **entradas** para abastecimento do estoque
-5. Executar a **produção**, consumindo automaticamente os componentes
-6. Consultar o **histórico** e exportar informações quando necessário
+### 📂 Importação e Exportação
+* **Importação via CSV:** Cadastro em massa de referências e peças para agilizar a implantação.
+* **Exportação para Excel:** Gera inventários completos e relatórios de diferenças formatados para uso administrativo.
 
----
+## 🚀 Atalhos de Produtividade (Hotkey)
+Para agilizar a operação no chão de fábrica, o sistema conta com atalhos de teclado:
+* `ALT + 1` até `ALT + 7`: Navegação rápida entre as abas.
+* `Enter`: Confirma cadastros, entradas e produções automaticamente.
 
-## Atalhos disponíveis
+## ⚙️ Tecnologias Utilizadas
+* **Frontend:** HTML5, CSS3 (Flexbox/Grid), JavaScript (ES6+).
+* **Backend como Serviço:** [Supabase](https://supabase.com/) (Banco de Dados Relacional).
+* **Persistência:** PostgreSQL em nuvem.
 
-- `Alt + 1` — Dashboard
-- `Alt + 2` — Cadastro
-- `Alt + 3` — BOM
-- `Alt + 4` — Entrada
-- `Enter` — confirmação rápida de ações e lançamentos
-
----
-
-## Objetivo do projeto
-
-Este sistema foi desenvolvido como uma solução prática para melhorar o controle operacional interno, reduzir falhas em movimentações de estoque e dar mais visibilidade ao processo produtivo.
-
-Além do uso aplicado no ambiente de trabalho, o projeto também representa uma experiência real de desenvolvimento, envolvendo interface web, lógica de negócio, manipulação de dados e integração com banco de dados em nuvem.
+## 📋 Como Configurar
+1. **Banco de Dados:** Certifique-se de que as tabelas `refs`, `pecas`, `bom` e `hist` estão criadas no seu projeto Supabase.
+2. **Hospedagem:** O arquivo é estático e pode ser rodado via **GitHub Pages**, Vercel ou até mesmo localmente.
+3. **Segurança:** As chaves de acesso estão configuradas para o ambiente atual; para produção, recomenda-se configurar o RLS (Row Level Security) no Supabase.
 
 ---
-
-## Contexto
-
-O **Full Control** foi pensado para atender necessidades reais de rotina industrial, com foco em simplicidade de uso e evolução contínua conforme as demandas do processo.
-
----
-
-## Licença
-
-Projeto desenvolvido para uso interno.
+📅 **Desenvolvedor:** [Seu Nome]  
+🏢 **Foco:** Elka Plásticos - Eficiência Industrial
