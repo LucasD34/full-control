@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title> Full Control 3.0 </title>
+<title> Full Control 2.0 </title>
 <style>
 
 /* Cores para diferenciar no histórico */
@@ -113,7 +113,7 @@ input, select { padding: 8px; margin: 5px 0; width: 100%; max-width: 250px; bord
 
     <div style="flex: 1 1 auto; min-width: 400px; text-align: center;">
         <h1 style="margin: 0; font-size: 52px; letter-spacing: 6px; font-family: 'Arial Black', sans-serif; color: #2c3e50; text-shadow: 1px 1px 2px rgba(0,0,0,0.1);">
-            FULL <span style="color: #f1c40f;">CONTROL</span> S.A. 🚀
+            FULL <span style="color: #f1c40f;">CONTROL</span>   🚀
         </h1>
         
         <div style="margin-top: 10px; font-weight: bold; color: #7f8c8d; font-size: 20px; letter-spacing: 2px;">
@@ -1677,35 +1677,79 @@ document.getElementById('bomRef').addEventListener('change', function() {
 // Adicione isto no seu script
 document.getElementById('entRef').addEventListener('change', atualizarSubSelects);
 
-// Atalho Global de ENTER
 document.addEventListener('keydown', function (e) {
-    if (e.key === 'Enter') {
-        const activeId = document.activeElement.id;
-        
-        // --- ABA ENTRADA ---
-        if (['entQtd', 'entPeca', 'entRef'].includes(activeId)) {
-            e.preventDefault();
-            registrarEntrada();
-        }
-        
-        // --- ABA BOM (Estrutura) ---
-        // Certifique-se de que a função no seu código se chama adicionarItemBOM
-        if (['bomQtd', 'bomPeca', 'bomRef'].includes(activeId)) {
-            e.preventDefault();
-            addBOM(); 
-        }
 
-        // --- ABA PRODUÇÃO ---
-if (['prodQtd', 'prodRef'].includes(activeId)) {
-    e.preventDefault();
-    produzir();
+    // =========================
+    // 🔹 ATALHOS DE ABAS (ALT)
+    // =========================
+    if (e.altKey) {
+        const tabs = document.querySelectorAll('.tab-btn');
+
+        const mapa = {
+            '1': 0,
+            '2': 1,
+            '3': 2,
+            '4': 3,
+            '5': 4,
+            '6': 5,
+            '7': 6
+        };
+
+        const indice = mapa[e.key];
+
+        if (indice !== undefined && tabs[indice]) {
+            e.preventDefault();
+            tabs[indice].click();
+            return;
+        }
+    }
+
+   // =========================
+// 🔹 ENTER (ações)
+// =========================
+if (e.key === 'Enter') {
+    const activeId = document.activeElement.id;
+
+    // CADASTRO - REF
+    if (['refCod', 'refNome'].includes(activeId)) {
+        e.preventDefault();
+        addRef();
+    }
+
+    // CADASTRO - PEÇA
+    if ([
+        'pecaRef',
+        'pCod',
+        'pNome',
+        'pQtd',
+        'pTamp',
+        'pTrans',
+        'pSleeve'
+    ].includes(activeId)) {
+        e.preventDefault();
+        addPeca();
 }
-        // --- ABA ESTOQUE (Ajuste Rápido) ---
-        // Se estiver num campo de input dentro da aba estoque
+
+    // ENTRADA
+    if (['entQtd', 'entPeca', 'entRef'].includes(activeId)) {
+        e.preventDefault();
+        registrarEntrada();
+    }
+
+    // BOM
+    if (['bomQtd', 'bomPeca', 'bomRef'].includes(activeId)) {
+        e.preventDefault();
+        addBOM();
+    }
+
+    // PRODUÇÃO
+    if (['prodQtd', 'prodPeca', 'prodRef'].includes(activeId)) {
+        e.preventDefault();
+        produzir();
+    }
+        // ESTOQUE (se quiser usar depois)
         if (['ajusteInput'].includes(activeId)) {
             e.preventDefault();
-            // A função ajusteRapido precisa do ID, então esse 
-            // atalho depende de onde o foco está.
         }
     }
 });
