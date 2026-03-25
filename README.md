@@ -2,7 +2,6 @@
 
 > Sistema avançado de controle de estoque, estrutura de produtos (BOM) e gestão de produção para a **Elka Plásticos**.
 
----
 
 ## 📝 Sobre o Projeto
 O **Full Control 2.0** é uma solução robusta para o controle de materiais semi-acabados. Diferente de sistemas de recados, esta versão foca no **balanço de massa**: ele entende que para produzir uma "Referência", é necessário consumir várias "Peças" do estoque, automatizando a baixa e o cálculo de disponibilidade.
@@ -48,6 +47,5 @@ Para agilizar a operação no chão de fábrica, o sistema conta com atalhos de 
 2. **Hospedagem:** O arquivo é estático e pode ser rodado via **GitHub Pages**, Vercel ou até mesmo localmente.
 3. **Segurança:** As chaves de acesso estão configuradas para o ambiente atual; para produção, recomenda-se configurar o RLS (Row Level Security) no Supabase.
 
----
-📅 **Desenvolvedor:** [Seu Nome]  
+📅 **Desenvolvedor:[LucasD34](https://github.com/LucasD34) 
 🏢 **Foco:** Elka Plásticos - Eficiência Industrial
